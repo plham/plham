@@ -1,0 +1,179 @@
+{
+	"output": {
+		"orderbook": false,
+		"system-info": false
+	},
+
+	"gc-every-loop": false,
+
+	"#iteration": 2000,
+
+	"simulation-steps": 10,
+	"initiation-steps": 1,
+	"transient-steps": 1,
+
+	"#spot-markets": NSPOTS,
+	"#index-markets": 1,
+
+	"spot-markets": {
+		"fundamental-correlation": {
+			"a": 0.0,
+			"b": 0.0,
+			"c": 0.0
+		},
+		"0": {
+			"#agents": 500,
+			"initial-price": 300.0,
+			"outstanding-shares": 25000,    "NOTE":"500x50",
+			"fundamental-initial-price": 300.0,
+			"fundamental-drift": 0.0,
+			"fundamental-volatility": 0.0,
+			"agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.9,
+				"chart-weight": 0.0,
+				"noise-weight": 0.9,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			},
+			"#init-agents": 500,
+			"init-agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.9,
+				"chart-weight": 0.0,
+				"noise-weight": 0.01,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			}
+		},
+		"default": {
+			"#agents": 500,
+			"initial-price": 300.0,
+			"outstanding-shares": 25000,    "NOTE":"500x50",
+			"fundamental-initial-price": 300.0,
+			"fundamental-drift": 0.0,
+			"fundamental-volatility": 0.0,
+			"agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.0,
+				"chart-weight": 0.0,
+				"noise-weight": 0.9,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			},
+			"#init-agents": 500,
+			"init-agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.9,
+				"chart-weight": 0.0,
+				"noise-weight": 0.01,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			}
+		}
+	},
+	"index-markets": {
+		"default": {
+			"#agents": 500,
+			"initial-price": 300.0,
+			"outstanding-shares": 25000,    "NOTE":"500x50",
+			"fundamental-initial-price": 300.0,
+			"agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.1,
+				"chart-weight": 0.0,
+				"noise-weight": 0.9,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			},
+			"#init-agents": 500,
+			"init-agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.9,
+				"chart-weight": 0.0,
+				"noise-weight": 0.01,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			}
+		}
+	},
+	"arbitrage-market": {
+		"max-intrusion-count": NARB,
+		"default": {
+			"#agents": NARB,
+			"agent": {
+				"order-making": "Mid",    "NOTE":"Mid or BidAsk",
+				"initial-asset-volume": 50,    "NOTE":"per market",
+				"initial-cash-amount": 15000,    "NOTE":"per market",
+				"order-min-volume": 1,
+				"order-threshold-price": 0.0
+			},
+			"#init-agents": 0,
+			"init-agent": {
+				"order-making": "Mid",    "NOTE":"Mid or BidAsk",
+				"initial-asset-volume": 50,    "NOTE":"per market",
+				"initial-cash-amount": 15000,    "NOTE":"per market",
+				"order-min-volume": 1,
+				"order-threshold-price": 0.0
+			}
+		}
+	},
+	"market-attacks": {
+		"0": {
+			"class": "FundamentalPriceAttack",
+			"target": {"class": "spot-market", "id": 0},
+			"time": 500,
+			"price-impact": 0.95,
+			"enabled": true
+		}
+	},
+	"market-rules": {
+		"0": {
+			"class": "circuit-breaker",
+			"target": {"class": "spot-market", "id": 0},
+			"followers": [
+				{"class": "spot-market", "id": 0}
+			],
+			"activation-max": 1,
+			"time-length": 1.0,
+			"change-rate": 0.05,
+			"enabled": false
+		}
+	}
+}

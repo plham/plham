@@ -1,0 +1,166 @@
+{
+	"simulation": {
+		"markets": ["SpotMarket-1", "SpotMarket-2", "SpotMarket-3", "SpotMarket-4", "SpotMarket-5", "SpotMarket-6", "SpotMarket-7", "SpotMarket-8", "SpotMarket-9", "IndexMarket-I"],
+		"agents": ["FCNAgents-1", "FCNAgents-2", "FCNAgents-3", "FCNAgents-4", "FCNAgents-5", "FCNAgents-6", "FCNAgents-7", "FCNAgents-8", "FCNAgents-9", "FCNAgents-I", "ArbitrageAgents"],
+		"sessions": [
+			{	"sessionName": 1,
+				"iterationSteps": 500,
+				"withOrderPlacement": true,
+				"withOrderExecution": true,
+				"withPrint": true,
+				"maxNormalOrders": 10000000000, "MEMO": "EVERYONE",
+				"maxHifreqOrders": 1,
+				"events": ["FundamentalPriceShock"]
+			}
+		]
+	},
+
+	"FundamentalPriceShock": {
+		"class": "FundamentalPriceShock",
+		"target": "SpotMarket-1",
+		"triggerTime": 0,    "MEMO": "At the beginning of the session 2",
+		"priceChangeRate": -0.1,    "MEMO": "Sign: negative for down; positive for up; zero for no change",
+		"enabled": true
+	},
+
+	"SpotMarket": {
+		"class": "Market",
+		"tickSize": 0.00001,
+		"marketPrice": 300.0,
+		"outstandingShares": 25000
+	},
+	"SpotMarket-1": {
+		"extends": "SpotMarket"
+	},
+	"SpotMarket-2": {
+		"extends": "SpotMarket"
+	},
+	"SpotMarket-3": {
+		"extends": "SpotMarket"
+	},
+	"SpotMarket-4": {
+		"extends": "SpotMarket"
+	},
+	"SpotMarket-5": {
+		"extends": "SpotMarket"
+	},
+	"SpotMarket-6": {
+		"extends": "SpotMarket"
+	},
+	"SpotMarket-7": {
+		"extends": "SpotMarket"
+	},
+	"SpotMarket-8": {
+		"extends": "SpotMarket"
+	},
+	"SpotMarket-9": {
+		"extends": "SpotMarket"
+	},
+	"IndexMarket-I": {
+		"class": "IndexMarket",
+		"tickSize": 0.00001,
+		"marketPrice": 300.0,
+		"outstandingShares": 25000,
+		"markets": ["SpotMarket-1", "SpotMarket-2", "SpotMarket-3", "SpotMarket-4", "SpotMarket-5", "SpotMarket-6", "SpotMarket-7", "SpotMarket-8", "SpotMarket-9"]
+	},
+
+	"FCNAgent": {
+		"class": "FCNAgent",
+		"numAgents": 500,
+
+		"MEMO": "Agent class",
+		"markets": ["Market"],
+		"assetVolume": 50,
+		"cashAmount": 10000,
+
+		"MEMO": "FCNAgent class",
+		"fundamentalWeight": {"expon": [1.0]},
+		"chartWeight": {"expon": [0.0]},
+		"noiseWeight": {"expon": [1.0]},
+		"noiseScale": 0.001,
+		"timeWindowSize": [100, 200],
+		"orderMargin": [0.0, 0.1]
+	},
+	"FCNAgents-1": {
+		"extends": "FCNAgent",
+		"markets": ["SpotMarket-1"],
+		"fundamentalWeight": {"expon": [1.0]},
+		"chartWeight": {"expon": [0.0]},
+		"noiseWeight": {"expon": [1.0]}
+	},
+	"FCNAgents-2": {
+		"extends": "FCNAgent",
+		"markets": ["SpotMarket-2"],
+		"fundamentalWeight": {"expon": [1.0]},
+		"chartWeight": {"expon": [0.0]},
+		"noiseWeight": {"expon": [1.0]}
+	},
+	"FCNAgents-3": {
+		"extends": "FCNAgent",
+		"markets": ["SpotMarket-3"],
+		"fundamentalWeight": {"expon": [1.0]},
+		"chartWeight": {"expon": [0.0]},
+		"noiseWeight": {"expon": [1.0]}
+	},
+	"FCNAgents-4": {
+		"extends": "FCNAgent",
+		"markets": ["SpotMarket-4"],
+		"fundamentalWeight": {"expon": [1.0]},
+		"chartWeight": {"expon": [0.0]},
+		"noiseWeight": {"expon": [1.0]}
+	},
+	"FCNAgents-5": {
+		"extends": "FCNAgent",
+		"markets": ["SpotMarket-5"],
+		"fundamentalWeight": {"expon": [1.0]},
+		"chartWeight": {"expon": [0.0]},
+		"noiseWeight": {"expon": [1.0]}
+	},
+	"FCNAgents-6": {
+		"extends": "FCNAgent",
+		"markets": ["SpotMarket-6"],
+		"fundamentalWeight": {"expon": [1.0]},
+		"chartWeight": {"expon": [0.0]},
+		"noiseWeight": {"expon": [1.0]}
+	},
+	"FCNAgents-7": {
+		"extends": "FCNAgent",
+		"markets": ["SpotMarket-7"],
+		"fundamentalWeight": {"expon": [1.0]},
+		"chartWeight": {"expon": [0.0]},
+		"noiseWeight": {"expon": [1.0]}
+	},
+	"FCNAgents-8": {
+		"extends": "FCNAgent",
+		"markets": ["SpotMarket-8"],
+		"fundamentalWeight": {"expon": [1.0]},
+		"chartWeight": {"expon": [0.0]},
+		"noiseWeight": {"expon": [1.0]}
+	},
+	"FCNAgents-9": {
+		"extends": "FCNAgent",
+		"markets": ["SpotMarket-9"],
+		"fundamentalWeight": {"expon": [1.0]},
+		"chartWeight": {"expon": [0.0]},
+		"noiseWeight": {"expon": [1.0]}
+	},
+	"FCNAgents-I": {
+		"extends": "FCNAgent",
+		"markets": ["IndexMarket-I"],
+		"fundamentalWeight": {"expon": [0.5]},
+		"chartWeight": {"expon": [0.0]},
+		"noiseWeight": {"expon": [1.0]}
+	},
+
+	"ArbitrageAgents": {
+		"class": "ArbitrageAgent",
+		"numAgents": 100,
+
+		"markets": ["IndexMarket-I"],
+		"assetVolume": 50,      "NOTE":"per market",
+		"cashAmount": 150000,    "NOTE":"total",
+
+		"orderVolume": 1,
+		"orderThresholdPrice": 1.0
+	}
+}
