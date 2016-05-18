@@ -7,6 +7,9 @@ import plham.Order;
 
 public class NullAgent extends Agent {
 	
+	static ENOUGH_CASH = 1e+10;
+	static ENOUGH_VOLUME = 1e+10 as Long;
+
 	public def this() {
 	}
 
@@ -24,32 +27,19 @@ public class NullAgent extends Agent {
 		return orders;
 	}
 	
-	public def isMarketAccessible(market:Market):Boolean {
-		return true;
-	}
+	public def isMarketAccessible(id:Long) = true;
 	
-	public def setMarketAccessible(market:Market) {
-	}
+	public def setMarketAccessible(id:Long) = 0;
 
-	public def getCashAmount():Double {
-		val ENOUGH_CASH = 1e+10;
-		return ENOUGH_CASH;
-	}
+	public def getCashAmount() = ENOUGH_CASH;
 	
-	public def setCashAmount(cashAmount:Double) {
-	}
+	public def setCashAmount(cashAmount:Double) = ENOUGH_CASH;
 	
-	public def updateCashAmount(delta:Double) {
-	}
+	public def updateCashAmount(delta:Double) = ENOUGH_CASH;
 
-	public def getAssetVolume(market:Market):Long {
-		val ENOUGH_VOLUME = 1e+10;
-		return ENOUGH_VOLUME as Long;
-	}
+	public def getAssetVolume(id:Long) = ENOUGH_VOLUME;
 	
-	public def setAssetVolume(market:Market, assetVolume:Long) {
-	}
+	public def setAssetVolume(id:Long, assetVolume:Long) = ENOUGH_VOLUME;
 	
-	public def updateAssetVolume(market:Market, delta:Long) {
-	}
+	public def updateAssetVolume(id:Long, delta:Long) = ENOUGH_VOLUME;
 }

@@ -43,7 +43,7 @@ public class BisectQueue[T] implements SortedQueue[T] {
 		val n = a.size();
 		var i:Long = 0;
 		while (i < a.size()) {
-			if(p(a(i))) {
+			if (p(a(i))) {
 				val last = a.removeLast();
 				if (i < a.size()) {
 					a(i) = last;

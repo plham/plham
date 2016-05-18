@@ -47,7 +47,6 @@ public class FCNAgent extends Agent {
 	}
 
 	public def submitOrders(market:Market):List[Order] {
-
 		val orders = new ArrayList[Order]();
 		if (!this.isMarketAccessible(market)) {
 			return orders;

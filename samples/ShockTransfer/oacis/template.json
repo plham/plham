@@ -1,43 +1,23 @@
-#/bin/bash
-# This is to generate a JSON file for large-scale simulations,
-# composed of N spot markets (assets).
-# Only the # of spot markets is set by the first argument.
-
-if [ $# -lt 1 ]; then
-	echo 'Usage: $ bash Parallel.json.sh NUM_SPOTS >config.json'
-	exit
-fi
-
-N=${1:-10}
-ITERATION_STEPS=${ITERATION_STEPS:-500}
-MAX_HIFREQ_ORDERS=${MAX_HIFREQ_ORDERS:-1}
-ARB_ORDER_THRESHOLD=${ARB_ORDER_THRESHOLD:-1.0}
-
-SPOTMARKETS=
-for i in $(seq 1 $N); do
-	SPOTMARKETS+="\"SpotMarket-${i}\", "
-done
-SPOTMARKETS=${SPOTMARKETS%, }
-
-FCNAGENTS=
-for i in $(seq 1 $N); do
-	FCNAGENTS+="\"FCNAgents-${i}\", "
-done
-FCNAGENTS=${FCNAGENTS%, }
-
-cat <<EOH
 {
 	"simulation": {
-		"markets": [${SPOTMARKETS}, "IndexMarket-I"],
-		"agents": [${FCNAGENTS}, "FCNAgents-I", "ArbitrageAgents"],
+		"markets": ["SpotMarket-1", "SpotMarket-2", "IndexMarket-I"],
+		"agents": ["FCNAgents-1", "FCNAgents-2", "FCNAgents-I", "ArbitrageAgents"],
 		"sessions": [
+			{	"sessionName": 0,
+				"iterationSteps": 100,
+				"withOrderPlacement": true,
+				"withOrderExecution": false,
+				"withPrint": true,
+				"maxNormalOrders": 3, "MEMO": "The same number as #markets",
+				"maxHifreqOrders": 0
+			},
 			{	"sessionName": 1,
-				"iterationSteps": ${ITERATION_STEPS},
+				"iterationSteps": 500,
 				"withOrderPlacement": true,
 				"withOrderExecution": true,
 				"withPrint": true,
-				"maxNormalOrders": 10000000000, "MEMO": "EVERYONE",
-				"maxHifreqOrders": ${MAX_HIFREQ_ORDERS},
+				"maxNormalOrders": 3, "MEMO": "The same number as #markets",
+				"maxHifreqOrders": 5,
 				"events": ["FundamentalPriceShock"]
 			}
 		]
@@ -57,28 +37,26 @@ cat <<EOH
 		"marketPrice": 300.0,
 		"outstandingShares": 25000
 	},
-EOH
 
-for i in $(seq 1 $N); do
-cat <<EOH
-	"SpotMarket-${i}": {
+	"SpotMarket-1": {
 		"extends": "SpotMarket"
 	},
-EOH
-done
 
-cat <<EOH
+	"SpotMarket-2": {
+		"extends": "SpotMarket"
+	},
+
 	"IndexMarket-I": {
 		"class": "IndexMarket",
 		"tickSize": 0.00001,
 		"marketPrice": 300.0,
 		"outstandingShares": 25000,
-		"markets": [${SPOTMARKETS%, }]
+		"markets": ["SpotMarket-1", "SpotMarket-2"]
 	},
 
 	"FCNAgent": {
 		"class": "FCNAgent",
-		"numAgents": 500,
+		"numAgents": 100,
 
 		"MEMO": "Agent class",
 		"markets": ["Market"],
@@ -93,25 +71,27 @@ cat <<EOH
 		"timeWindowSize": [100, 200],
 		"orderMargin": [0.0, 0.1]
 	},
-EOH
 
-for i in $(seq 1 $N); do
-cat <<EOH
-	"FCNAgents-${i}": {
+	"FCNAgents-1": {
 		"extends": "FCNAgent",
-		"markets": ["SpotMarket-${i}"],
-		"fundamentalWeight": {"expon": [1.0]},
+		"markets": ["SpotMarket-1"],
+		"fundamentalWeight": {"expon": [%F1%]},
 		"chartWeight": {"expon": [0.0]},
 		"noiseWeight": {"expon": [1.0]}
 	},
-EOH
-done
 
-cat <<EOH
+	"FCNAgents-2": {
+		"extends": "FCNAgent",
+		"markets": ["SpotMarket-2"],
+		"fundamentalWeight": {"expon": [0.0]},
+		"chartWeight": {"expon": [0.0]},
+		"noiseWeight": {"expon": [0.2]}
+	},
+
 	"FCNAgents-I": {
 		"extends": "FCNAgent",
 		"markets": ["IndexMarket-I"],
-		"fundamentalWeight": {"expon": [0.5]},
+		"fundamentalWeight": {"expon": [%FI%]},
 		"chartWeight": {"expon": [0.0]},
 		"noiseWeight": {"expon": [1.0]}
 	},
@@ -125,8 +105,6 @@ cat <<EOH
 		"cashAmount": 150000,    "NOTE":"total",
 
 		"orderVolume": 1,
-		"orderThresholdPrice": ${ARB_ORDER_THRESHOLD}
+		"orderThresholdPrice": 1.0
 	}
 }
-EOH
-

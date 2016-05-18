@@ -73,7 +73,7 @@ public class TradingHaltMain extends CI2002Main {
 		rule.referencePrice = market.getPrice();
 		rule.triggerChangeRate = json("triggerChangeRate").toDouble();
 		rule.haltingTimeLength = json("haltingTimeLength").toLong();
-		val targetMarkets = getMarketsByNames(json("targetMarkets"));
+		val targetMarkets = getMarketsByName(json("targetMarkets"));
 		rule.addTargetMarkets(targetMarkets);
 		market.addAfterOrderHandlingEvent(rule);
 	}

@@ -1,5 +1,5 @@
-package plham.samples.test;
-import plham.util.JSON;
+package samples.test;
+import cassia.util.JSON;
 
 public class JSONTricks {
 

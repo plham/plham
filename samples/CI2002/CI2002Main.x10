@@ -73,7 +73,7 @@ public class CI2002Main extends Main {
 		agent.orderMargin = random.nextRandom(json("orderMargin"));
 		agent.marginType = MARGIN_TYPES(json("marginType", "fixed")).toLong();
 
-		for (market in getMarketsByNames(json("markets"))) {
+		for (market in getMarketsByName(json("markets"))) {
 			agent.setMarketAccessible(market);
 			agent.setAssetVolume(market, random.nextRandom(json("assetVolume")) as Long);
 		}

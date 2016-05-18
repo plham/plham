@@ -62,8 +62,8 @@ public class TradingHaltRule implements Market.MarketEvent, Market.OrderEvent {
 				referenceMarket.setRunning(true);
 				for (i in this.targetMarketIds) {
 					val target = env.markets(i);
-					val basePrice = target.getPrice();
-					target.cleanOrderBooks(basePrice); // Better to use Itayose.
+//					target.cleanOrderBooks(target.getPrice()); // Better to use Itayose.
+					target.itayoseOrderBooks();
 					target.setRunning(true);
 				}
 				this.haltingTimeStarted = Long.MIN_VALUE;

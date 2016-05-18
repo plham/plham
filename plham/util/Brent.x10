@@ -25,7 +25,7 @@ public class Brent {
 		val maxiter = 500;
 
 		if ((fa > 0.0 && fb > 0.0) || (fa < 0.0 && fb < 0.0)) {
-			throw new NumericalException("two numbers must have different signs in a mapped space");
+			throw new NumericalException("Two numbers must have different signs in a mapped space");
 		}
 
 		for (_ in 1..maxiter) {

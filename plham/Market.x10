@@ -2,9 +2,10 @@ package plham;
 import x10.util.ArrayList;
 import x10.util.List;
 import x10.util.Random;
+import plham.util.Itayose;
 
 /**
- * The base class of markets.
+ * The base class for markets.
  * A continuous double auction mechanism is implemented.
  *
  * <p><ul>
@@ -67,6 +68,7 @@ public class Market {
 
 	//// Historical data (hidden) ////
 	public transient var lastExecutedPrices:List[Double];
+	public transient var sumExecutedVolumes:List[Long];
 	public transient var buyOrdersCounts:List[Long];
 	public transient var sellOrdersCounts:List[Long];
 	public transient var executedOrdersCounts:List[Long];
@@ -100,6 +102,7 @@ public class Market {
 		this.fundamentalPrices = new ArrayList[Double]();
 
 		this.lastExecutedPrices = new ArrayList[Double]();
+		this.sumExecutedVolumes = new ArrayList[Long]();
 		this.buyOrdersCounts = new ArrayList[Long]();
 		this.sellOrdersCounts = new ArrayList[Long]();
 		this.executedOrdersCounts = new ArrayList[Long]();
@@ -142,12 +145,12 @@ public class Market {
 
 		this.roundPrice(order); // Do in the agent's place
 
-		if (order instanceof Cancel) {
+		if (order.isCancel()) {
 			if (order.isBuyOrder()) {
-				this.buyOrderBook.cancel(order);
+				this.cancelBuyOrder(order);
 			}
 			if (order.isSellOrder()) {
-				this.sellOrderBook.cancel(order);
+				this.cancelSellOrder(order);
 			}
 			return;
 		}
@@ -160,6 +163,16 @@ public class Market {
 			this.handleSellOrder(order);
 			this.sellOrdersCounts(t) += 1;
 		}
+	}
+
+	protected def cancelBuyOrder(order:Order) {
+		assert order.isBuyOrder();
+		this.buyOrderBook.cancel(order);
+	}
+
+	protected def cancelSellOrder(order:Order) {
+		assert order.isSellOrder();
+		this.sellOrderBook.cancel(order);
 	}
 	
 	protected def handleBuyOrder(order:Order) {
@@ -193,8 +206,6 @@ public class Market {
 				val sellOrder = this.sellOrderBook.getBestOrder();
 				if (buyOrder.getPrice() >= sellOrder.getPrice()) {
 					this.executeBuyOrders(buyOrder, sellOrder);
-					this.executedOrdersCounts(t) += 1;
-					this.lastExecutedPrices(t) = sellOrder.getPrice();
 				} else {
 					break;
 				}
@@ -219,8 +230,6 @@ public class Market {
 				val buyOrder = this.buyOrderBook.getBestOrder();
 				if (buyOrder.getPrice() >= sellOrder.getPrice()) {
 					this.executeSellOrders(sellOrder, buyOrder);
-					this.executedOrdersCounts(t) += 1;
-					this.lastExecutedPrices(t) = buyOrder.getPrice();
 				} else {
 					break;
 				}
@@ -245,8 +254,6 @@ public class Market {
 				val sellOrder = this.sellOrderBook.getBestOrder();
 				//if (buyOrder.getPrice() >= sellOrder.getPrice()) {
 					this.executeBuyOrders(buyOrder, sellOrder);
-					this.executedOrdersCounts(t) += 1;
-					this.lastExecutedPrices(t) = sellOrder.getPrice();
 				//} else {
 				//	break;
 				//}
@@ -271,8 +278,6 @@ public class Market {
 				val buyOrder = this.buyOrderBook.getBestOrder();
 				//if (buyOrder.getPrice() >= sellOrder.getPrice()) {
 					this.executeSellOrders(sellOrder, buyOrder);
-					this.executedOrdersCounts(t) += 1;
-					this.lastExecutedPrices(t) = buyOrder.getPrice();
 				//} else {
 				//	break;
 				//}
@@ -297,17 +302,26 @@ public class Market {
 		this.sellOrderBook.removeAllWhere((order:Order) => isExpired(order) || isNoVolume(order));
 	}
 
+//	/**
+//	 * Remove all buy orders above the <code>basePrice</code> and all sell orders below the <code>basePrice</code>
+//	 * as well as all expired and no-volume orders.
+//	 */
+//	public def cleanOrderBooks(basePrice:Double) {
+//		val isExpired = (order:Order) => order.isExpired(this);
+//		val isNoVolume = (order:Order) => order.getVolume() <= 0;
+//		val isMoreThan = (order:Order) => order.getPrice() > basePrice;
+//		val isLessThan = (order:Order) => order.getPrice() < basePrice;
+//		this.buyOrderBook.removeAllWhere((order:Order) => isExpired(order) || isNoVolume(order) || isMoreThan(order));
+//		this.sellOrderBook.removeAllWhere((order:Order) => isExpired(order) || isNoVolume(order) || isLessThan(order));
+//	}
+
 	/**
-	 * Remove all buy orders above the <code>basePrice</code> and all sell orders below the <code>basePrice</code>
-	 * as well as all expired and no-volume orders.
+	 * Perform the itayose method for clearance of matched orders.
+	 * The method <code>updateOrderBooks()</code> will be called after this method.
 	 */
-	public def cleanOrderBooks(basePrice:Double) {
-        val isExpired = (order:Order) => order.isExpired(this);
-		val isNoVolume = (order:Order) => order.getVolume() <= 0;
-		val isMoreThan = (order:Order) => order.getPrice() > basePrice;
-		val isLessThan = (order:Order) => order.getPrice() < basePrice;
-		this.buyOrderBook.removeAllWhere((order:Order) => isExpired(order) || isNoVolume(order) || isMoreThan(order));
-		this.sellOrderBook.removeAllWhere((order:Order) => isExpired(order) || isNoVolume(order) || isLessThan(order));
+	public def itayoseOrderBooks() {
+		Itayose.itayose(this);
+		this.updateOrderBooks();
 	}
 	
 	/**
@@ -335,6 +349,9 @@ public class Market {
 	 */
 	public def roundPrice(order:Order):Order {
 		if (this.tickSize <= 0.0) {
+			return order;
+		}
+		if (order.getPrice() == Order.NO_PRICE) {
 			return order;
 		}
 		if (order.isBuyOrder()) {
@@ -389,7 +406,7 @@ public class Market {
 		val t = this.getTime();
 		val price = this.getNextMarketPrice();
 		this.marketPrices(t) = price;
-		this.updateOrderBooks();
+		//this.updateOrderBooks();
 	}
 
 	public def updateMarketPrice() {
@@ -407,6 +424,7 @@ public class Market {
 		this.sellOrdersCounts.add(0);
 		this.executedOrdersCounts.add(0);
 		this.lastExecutedPrices.add(Double.NaN);
+		this.sumExecutedVolumes.add(0);
 		this.executionLogs.add(new ArrayList[ExecutionLog]());
 		this.agentUpdates.add(new ArrayList[AgentUpdate]());
 	}
@@ -427,6 +445,7 @@ public class Market {
 		this.sellOrdersCounts.add(0);
 		this.executedOrdersCounts.add(0);
 		this.lastExecutedPrices.add(Double.NaN);
+		this.sumExecutedVolumes.add(0);
 		this.executionLogs.add(new ArrayList[ExecutionLog]());
 		this.agentUpdates.add(new ArrayList[AgentUpdate]());
 	}
@@ -481,22 +500,13 @@ public class Market {
 		assert this.marketPrices.size() - 1 == t;
 		assert this.fundamentalPrices.size() - 1 == t;
 		assert this.lastExecutedPrices.size() - 1 == t;
+		assert this.sumExecutedVolumes.size() - 1 == t;
 		assert this.buyOrdersCounts.size() - 1 == t;
 		assert this.sellOrdersCounts.size() - 1 == t;
 		assert this.executedOrdersCounts.size() - 1 == t;
 		assert this.executionLogs.size() - 1 == t;
 		assert this.agentUpdates.size() - 1 == t;
 		Console.OUT.println("#MARKET CHECK PASSED");
-	}
-
-
-	public transient var agentUpdates:List[List[AgentUpdate]] = new ArrayList[List[AgentUpdate]]();
-
-	public static class AgentUpdate {
-		public var agentId:Long;
-		public var marketId:Long;
-		public var cashAmountDelta:Double;
-		public var assetVolumeDelta:Long;
 	}
 
 	protected def executeBuyOrders(buyOrder:Order, sellOrder:Order) {
@@ -512,6 +522,7 @@ public class Market {
 	 * The 1st argument <code>price</code> is used to exchange.
 	 * @param isSellMajor is an aux information:
 	 *        true if the exchange price is determined by an order on the sell orderbook (seller).
+	 * @return execution price (maybe <code>price</code>)
 	 */
 	protected def executeOrders(price:Double, buyOrder:Order, sellOrder:Order, isSellMajor:Boolean) {
 		assert buyOrder.marketId == this.id;
@@ -529,14 +540,18 @@ public class Market {
 
 		val buyUpdate = new AgentUpdate();
 		buyUpdate.agentId = buyOrder.agentId;
-		buyUpdate.marketId = this.id;
+		buyUpdate.marketId = buyOrder.marketId;
+		buyUpdate.orderId = buyOrder.orderId;
+		buyUpdate.price = exchangePrice;
 		buyUpdate.cashAmountDelta = -cashAmountDelta;   // A buyer pays cash
 		buyUpdate.assetVolumeDelta = +assetVolumeDelta; // and gets stocks
 		this.handleAgentUpdate(buyUpdate);
 
 		val sellUpdate = new AgentUpdate();
 		sellUpdate.agentId = sellOrder.agentId;
-		sellUpdate.marketId = this.id;
+		sellUpdate.marketId = sellOrder.marketId;
+		sellUpdate.orderId = sellOrder.orderId;
+		sellUpdate.price = exchangePrice;
 		sellUpdate.cashAmountDelta = +cashAmountDelta;   // A seller gets cash
 		sellUpdate.assetVolumeDelta = -assetVolumeDelta; // and gives stocks
 		this.handleAgentUpdate(sellUpdate);
@@ -556,6 +571,10 @@ public class Market {
 		buyOrder.updateVolume(-exchangeVolume);
 		sellOrder.updateVolume(-exchangeVolume);
 
+		this.executedOrdersCounts(t) += 1;
+		this.lastExecutedPrices(t) = exchangePrice;
+		this.sumExecutedVolumes(t) = sumExecutedVolumes(t) + exchangeVolume;
+
 		val DEBUG = false;
 		if (DEBUG) {
 			Console.OUT.println("exchangePrice: " + exchangePrice);
@@ -564,6 +583,26 @@ public class Market {
 			Console.OUT.println("sellOrder.getVolume(): " + sellOrder.getVolume());
 		}
 	}
+
+	public def getTradeVolume():Long = getTradeVolume(this.getTime());
+
+	public def getTradeVolume(t:Long):Long = this.sumExecutedVolumes(t);
+
+	public def setTradeVolume(t:Long, tradeVolume:Long):Long = this.sumExecutedVolumes(t) = tradeVolume;
+
+	public static class AgentUpdate {
+		public var agentId:Long;
+		public var marketId:Long;
+		public var orderId:Long;
+		public var price:Double;
+		public var cashAmountDelta:Double;
+		public var assetVolumeDelta:Long;
+
+		public def isBuySide():Boolean = this.assetVolumeDelta > 0;
+		public def isSellSide():Boolean = this.assetVolumeDelta < 0;
+	}
+
+	public transient var agentUpdates:List[List[AgentUpdate]] = new ArrayList[List[AgentUpdate]]();
 
 	public def handleAgentUpdate(update:AgentUpdate) {
 		val t = this.getTime();
@@ -574,22 +613,16 @@ public class Market {
 		}
 	}
 
-	public def executeAgentUpdates(agents:List[Agent], updates:List[AgentUpdate]) {
-		for (update in updates) {
-			this.executeAgentUpdate(agents, update);
-		}
-	}
-
 	public def executeAgentUpdate(agents:List[Agent], update:AgentUpdate) {
 		val id = update.agentId;
 		val agent = agents(id);
 		if (agent != null) {
-			//Console.OUT.println(["Market#executeAgentUpdate", update.agentId, here]);
+			//Console.OUT.println(["Market#executeAgentUpdate", this.id, this, update.agentId, here]);
 			agent.updateCashAmount(update.cashAmountDelta);
 			agent.updateAssetVolume(this, update.assetVolumeDelta);
+			agent.orderExecuted(this, update.orderId, update.price, update.cashAmountDelta, update.assetVolumeDelta);
 		}
 	}
-
 
 	public static interface MarketEvent extends Event {
 		public def update(market:Market):void;
@@ -600,8 +633,11 @@ public class Market {
 	}
 
 	public var beforeOrderHandlingEvents:List[OrderEvent] = new ArrayList[OrderEvent]();
+
 	public var afterOrderHandlingEvents:List[OrderEvent] = new ArrayList[OrderEvent]();
+
 	public var beforeSimulationStepEvents:List[MarketEvent] = new ArrayList[MarketEvent]();
+
 	public var afterSimulationStepEvents:List[MarketEvent] = new ArrayList[MarketEvent]();
 
 	public def addBeforeOrderHandlingEvent(e:OrderEvent) = this.beforeOrderHandlingEvents.add(e);

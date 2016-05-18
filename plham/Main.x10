@@ -108,7 +108,7 @@ public class Main extends Simulator {
 	 * Since in GLOBAL even a single item is stored as <code>List</code>, the size must be 1.
 	 * This throws an exception if the size is &gt; 1.
 	 * @param name  a section name defined in the JSON config file.
-	 * @return a instance having the name.
+	 * @return an instance having the name.
 	 */
 	public def getItemByName[T](name:String):T {
 		val items = getItemsByName[T](name);
@@ -122,7 +122,7 @@ public class Main extends Simulator {
 	 * @param n  the length of names.
 	 * @return a list of instances having the names.
 	 */
-	public def getItemsByNames[T](names:(i:Long)=>String, n:Long):List[T] {
+	public def getItemsByName[T](names:(i:Long)=>String, n:Long):List[T] {
 		val items = new ArrayList[T]();
 		for (i in 0..(n - 1)) {
 			items.addAll(getItemsByName[T](names(i)));
@@ -130,37 +130,56 @@ public class Main extends Simulator {
 		return items;
 	}
 
-	public def getMarketsByNames(list:JSON.Value) = getItemsByNames[Market]((i:Long) => list(i).toString(), list.size());
+	/**
+	 * Get a list of items (instances) stored in GLOBAL specified by the list of names.
+	 * @param json  section name(s) (String or List) defined in the JSON config file.
+	 * @return a list of instances having the name(s).
+	 */
+	public def getItemsByName[T](json:JSON.Value):List[T] {
+		if (json.isList()) {
+			return getItemsByName[T]((i:Long) => json(i).toString(), json.size());
+		}
+		return getItemsByName[T](json.toString());
+	}
 
-	public def getMarketsByName(json:JSON.Value) = getItemsByName[Market](json.toString());
+	/**
+	 * Get an item (instance) stored in GLOBAL by the name.
+	 * Since in GLOBAL even a single item is stored as <code>List</code>, the size must be 1.
+	 * This throws an exception if the size is &gt; 1.
+	 * @param json  a section name (String or List) defined in the JSON config file.
+	 * @return an instance having the name.
+	 */
+	public def getItemByName[T](json:JSON.Value):T {
+		val items = getItemsByName[T](json);
+		assert items.size() == 1 : "getItemByName() got more than one object";
+		return items(0);
+	}
 
-	public def getMarketByName(json:JSON.Value) = getItemByName[Market](json.toString());
+	public def getMarketsByName(json:JSON.Value) = getItemsByName[Market](json);
 
-	public def getMarketsByNames(names:List[String]) = getItemsByNames[Market]((i:Long) => names(i), names.size());
+	public def getMarketByName(json:JSON.Value) = getItemByName[Market](json);
+
+	public def getMarketsByName(names:List[String]) = getItemsByName[Market]((i:Long) => names(i), names.size());
 
 	public def getMarketsByName(name:String) = getItemsByName[Market](name);
 
 	public def getMarketByName(name:String) = getItemByName[Market](name);
 
-	public def getAgentsByNames(list:JSON.Value) = getItemsByNames[Agent]((i:Long) => list(i).toString(), list.size());
+	public def getAgentsByName(json:JSON.Value) = getItemsByName[Agent](json);
 
-	public def getAgentsByName(json:JSON.Value) = getItemsByName[Agent](json.toString());
+	public def getAgentByName(json:JSON.Value) = getItemByName[Agent](json);
 
-	public def getAgentByName(json:JSON.Value) = getItemByName[Agent](json.toString());
-
-	public def getAgentsByNames(names:List[String]) = getItemsByNames[Agent]((i:Long) => names(i), names.size());
+	public def getAgentsByName(names:List[String]) = getItemsByName[Agent]((i:Long) => names(i), names.size());
 
 	public def getAgentsByName(name:String) = getItemsByName[Agent](name);
 
 	public def getAgentByName(name:String) = getItemByName[Agent](name);
 
-	public def getEventsByNames(list:JSON.Value) = getItemsByNames[Event]((i:Long) => list(i).toString(), list.size());
+	public def getEventsByName(json:JSON.Value) = getItemsByName[Event](json);
 
-	public def getEventsByName(json:JSON.Value) = getItemsByName[Event](json.toString());
+	public def getEventByName(json:JSON.Value) = getItemByName[Event](json);
 
-	public def getEventByName(json:JSON.Value) = getItemByName[Event](json.toString());
-
-	public def getEventsByNames(names:List[String]) = getItemsByNames[Event]((i:Long) => names(i), names.size());
+	public def getEventsByName(names:List[String]) = getItemsByName[Event]((i:Long) => names(i), names.size());
 
 	public def getEventsByName(name:String) = getItemsByName[Event](name);
 

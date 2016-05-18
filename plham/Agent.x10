@@ -145,6 +145,27 @@ public class Agent {
 
 	public def updateAssetVolume(market:Market, delta:Long) = this.updateAssetVolume(market.id, delta);
 
+	/**
+	 * Callback when one's order is executed at the market.
+	 * @param orderId  (0 if unspecified)
+	 * @param market
+	 * @param price  the price at which the order is executed
+	 * @param cashAmountDelta  how much changed
+	 * @param assetVolumeDelta  how much changed
+	 */
+	public def orderExecuted(market:Market, orderId:Long, price:Double, cashAmountDelta:Double, assetVolumeDelta:Long) {
+		//Console.OUT.println("#Agent#orderExecuted: " + ["agent:" + this.id, "market:" + market.id, "order:" + orderId, "price:" + price, "cashAmountDelta:" + cashAmountDelta, "assetVolumeDelta:" + assetVolumeDelta]);
+	}
+
+	/**
+	 * Get the next order id.
+	 * This is called in the constructor of {@link plham.Order}.
+	 * To enable automated order numbering, override this method and return unique integers.
+	 * @return always 0 by default
+	 * @see plham.OrderBook
+	 */
+	public def nextOrderId():Long = 0;
+
 	public def toString():String {
 		return this.typeName() + [this.id, this.cashAmount, this.assetsVolumes.keySet()];
 	}

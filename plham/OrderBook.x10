@@ -1,6 +1,9 @@
 package plham;
 import x10.util.ArrayList;
 import x10.util.List;
+import x10.util.HashSet;
+import x10.util.Set;
+import x10.util.Pair;
 import x10.util.StringUtil;
 import cassia.util.HeapQueue;
 import cassia.util.SortedQueue;
@@ -13,12 +16,13 @@ import cassia.util.SortedQueue;
 public class OrderBook {
 	
 	public var queue:SortedQueue[Order];
-	public var cancels:ArrayList[Order]; // TODO: Poor implimentation.
 	public var time:Time;
+
+	/** A cache for cancel management. */
+	protected var cancelCache:Set[Key] = new HashSet[Key](); // Poor implimentation.
 	
 	public def this(comparator:(Order,Order)=>Int) {
 		this.queue = new HeapQueue[Order](comparator);
-		this.cancels = new ArrayList[Order]();
 	}
 
 	protected def setTime(time:Time) {
@@ -32,80 +36,36 @@ public class OrderBook {
 		return this.time.t;
 	}
 
-	protected static CANCEL_SORTER = (one:Order, other:Order) => {
-		if (one.agentId < other.agentId) {
-			return -1n;
-		}
-		if (one.agentId > other.agentId) {
-			return +1n;
-		}
-		if (one.price < other.price) {
-			return -1n;
-		}
-		if (one.price > other.price) {
-			return +1n;
-		}
-		if (one.timePlaced < other.timePlaced) {
-			return -1n;
-		}
-		if (one.timePlaced > other.timePlaced) {
-			return +1n;
-		}
-		return 0n;
-	};
-
-	/**
-	 * Assume an order having ticksize-rounded price.
-	 */
-	public def cancel(order:Order) {
-		val a = this.cancels;
-		val i = a.binarySearch(order, CANCEL_SORTER);
-		if (i >= 0) {
-			a.addBefore(+i, order); // Keep sorted
-		} else {
-			a.addBefore(-i, order); // Keep sorted
-		}
-		//a.sort(CANCEL_SORTER);
-	}
-
-	public def isCancelled(order:Order):Boolean {
-		val a = this.cancels;
-		val i = a.binarySearch(order, CANCEL_SORTER);
-		if (i >= 0) {
-			//Console.OUT.println("#OrderBook#isCancelled: cancelled order found at " + i);
-		}
-		return i >= 0;
-	}
-	
+	/** For system use only. */
 	protected def popUntil() {
 		val t = this.getTime();
 		val q = this.queue;
 		val n = q.size();
 		while (q.size() > 0) {
 			val order = q.peek();
-			//if (isCancelled(order)) {
 			if (order.isExpired(t) || isCancelled(order)) {
 				q.pop();
+				cancelCache.remove(new Key(order));
 			} else {
 				break;
 			}
 		}
-		if (n - q.size() > 0) {
-			//Console.OUT.println("#OrderBook#popUntil: " + (n - q.size()) + " were popped");
-		}
+		//if (n - q.size() > 0) Console.OUT.println("#OrderBook#popUntil: " + (n - q.size()) + " were popped");
 	}
 
 	public def size():Long {
 		this.popUntil();
 		return this.queue.size();
 	}
-	
+
 	public def add(order:Order) {
 		this.queue.add(order);
 	}
 	
 	public def remove(order:Order) {
-		this.queue.remove(order);
+		if (this.queue.remove(order)) {
+			cancelCache.remove(new Key(order));
+		}
 	}
 
 	/**
@@ -120,6 +80,19 @@ public class OrderBook {
 	}
 
 	/**
+	 * Remove all orders satisfying the condition <code>p</code>.
+	 */
+	public def removeAllWhere(p:(Order)=>Boolean):Boolean {
+		//for (o in this.queue) { if (isCancelled(o)) Console.OUT.println("#isCancelled but isInQueue " + o); }
+		val f = (order:Order) => { // A wrapper
+			val b = p(order);
+			if (b) cancelCache.remove(new Key(order));
+			return b;
+		};
+		return this.queue.removeAllWhere(f);
+	}
+
+	/**
 	 * Get the price of the best bid(buy)/ask(sell) order.
 	 */
 	public def getBestPrice():Double {
@@ -131,11 +104,26 @@ public class OrderBook {
 	}
 
 	/**
-	 * Remove all orders satisfying the condition <code>p</code>.
+	 * Cancel the order.
+	 * This should not be called directly by agents.
+	 * Use {@link plham.Cancel} instead.
+	 * @param order  a cancel request
 	 */
-	public def removeAllWhere(p:(Order)=>Boolean):Boolean {
-		return this.queue.removeAllWhere(p);
+	public def cancel(order:Order) {
+		assert order.orderId > 0 : "Cancel requests must have orderId > 0";
+		if (order.orderId > 0) {
+			cancelCache.add(new Key(order));
+			//Console.OUT.println("#OrderBook#cancel: " + order);
+		}
 	}
+
+	/**
+	 * Test if the order (having <code>agentId</code> and <code>orderId</code>) is requested for cancel.
+	 * @param order
+	 * @return
+	 * @see plham.Cancel
+	 */
+	public def isCancelled(order:Order):Boolean = cancelCache.contains(new Key(order));
 
 	public static LOWERS_FIRST = (one:Order, other:Order) => {
 		if (one.price < other.price) {
@@ -168,6 +156,22 @@ public class OrderBook {
 		}
 		return 0n;
 	};
+
+	/** For system use only. */
+	protected static struct Key {
+
+		val agentId:Long;
+		val orderId:Long;
+
+		def this(order:Order) {
+			this(order.agentId, order.orderId);
+		}
+
+		def this(agentId:Long, orderId:Long) {
+			this.agentId = agentId;
+			this.orderId = orderId;
+		}
+	}
 
 	public static def dump(it:Iterator[Order], time:Long) {
 		while (it.hasNext()) {

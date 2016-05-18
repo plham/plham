@@ -45,6 +45,9 @@ public class HeapQueue[T] implements SortedQueue[T] {
 
 	public def remove(x:T):Boolean {
 		val i = this.heap.indexOf(x);
+		if (i < 0) {
+			return false;
+		}
 		val e = this.heap.removeLast();
 		if (i < this.heap.size()) {
 			this.siftdown(i, e);
@@ -60,7 +63,7 @@ public class HeapQueue[T] implements SortedQueue[T] {
 		val n = a.size();
 		var i:Long = 0;
 		while (i < a.size()) {
-			if(p(a(i))) {
+			if (p(a(i))) {
 				val last = a.removeLast();
 				if (i < a.size()) {
 					a(i) = last;

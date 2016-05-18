@@ -83,7 +83,8 @@ public class MultiGeomBrownian {
 			}
 		}
 		for (i in 0..(dim - 1)) {
-			this.state(i) += this.mu(i) * this.dt + this.sigma(i) * this.c(i) * dt * dt;
+			//this.state(i) += this.mu(i) * this.dt + this.sigma(i) * this.c(i) * Math.sqrt(dt);
+			this.state(i) += (this.mu(i) - this.sigma(i) * this.sigma(i) * 0.5) * this.dt + this.sigma(i) * this.c(i) * Math.sqrt(dt);
 			this.g(i) = this.s0(i) * Math.exp(this.state(i));
 		}
 		return this.g;
@@ -119,7 +120,7 @@ public class MultiGeomBrownian {
 		val mgbm = new MultiGeomBrownian(random, s0, mu, sigma, cor, dt);
 		Console.OUT.println("Cholesky\n" + mgbm.chol);
 
-		for (t in 0..1000) {
+		for (t in 0..100000) {
 			val X = mgbm.nextBrownian();
 			for (x in X) {
 				Console.OUT.print(x + " ");

@@ -30,10 +30,11 @@ public class Order {
 	public var timeLength:Long;
 	/** The time when this order is placed. I.e. <code>market.getTime()</code>. */
 	public var timePlaced:Long;
-	//public var serialNumber:Long;
+	/** The order id used for consulting and to notify its execution (set to 0 if unnecessary; this is by default). */
+	public var orderId:Long;
 	
 	/** Do not use this. */
-	public def this(kind:Kind, agentId:Long, marketId:Long, price:Double, volume:Long, timeLength:Long, timePlaced:Long) {
+	public def this(kind:Kind, agentId:Long, marketId:Long, price:Double, volume:Long, timeLength:Long, timePlaced:Long, orderId:Long) {
 		assert price >= 0;
 		assert volume >= 0;
 		this.kind = kind;
@@ -43,10 +44,30 @@ public class Order {
 		this.volume = volume;
 		this.timeLength = timeLength;
 		this.timePlaced = timePlaced;
+		this.orderId = orderId;
+	}
+
+	/** Do not use this. */
+	public def this(kind:Kind, agentId:Long, marketId:Long, price:Double, volume:Long, timeLength:Long, timePlaced:Long) {
+		this(kind, agentId, marketId, price, volume, timeLength, timePlaced, 0);
 	}
 
 	public def this(kind:Kind, agent:Agent, market:Market, price:Double, volume:Long, timeLength:Long) {
-		this(kind, agent.id, market.id, price, volume, timeLength, market.getTime());
+		this(kind, agent.id, market.id, price, volume, timeLength, market.getTime(), agent.nextOrderId());
+	}
+
+	/**
+	 * Create a copy.
+	 */
+	public def this(other:Order) {
+		this.kind = other.kind;
+		this.agentId = other.agentId;
+		this.marketId = other.marketId;
+		this.price = other.price;
+		this.volume = other.volume;
+		this.timeLength = other.timeLength;
+		this.timePlaced = other.timePlaced;
+		this.orderId = other.orderId;
 	}
 	
 	public def getPrice():Double = this.price;
@@ -80,9 +101,17 @@ public class Order {
 	public def isMarketOrder():Boolean {
 		return this.kind == Order.KIND_BUY_MARKET_ORDER || this.kind == Order.KIND_SELL_MARKET_ORDER;
 	}
+
+	/**
+	 * Test if this is a cancel request for an order.
+	 * @return true if instanceof <code>Cancel</code>
+	 */
+	public def isCancel():Boolean = this instanceof Cancel;
 	
 	/**
 	 * Test if this order has been expired.
+	 * @param market
+	 * @return true if expired
 	 */
 	public def isExpired(market:Market):Boolean {
 		assert this.marketId == market.id;
@@ -91,13 +120,15 @@ public class Order {
 	
 	/**
 	 * Test if this order has been expired.
+	 * @param t
+	 * @return true if expired
 	 */
 	public def isExpired(t:Long):Boolean {
 		return this.timePlaced + this.timeLength < t;
 	}
 	
 	public def toString():String {
-		return this.typeName() + [this.getKindName(), "agent:" + this.agentId, "market:" + this.marketId, this.price, this.volume, this.timeLength, this.timePlaced];
+		return this.typeName() + [this.getKindName(), "agent:" + this.agentId, "market:" + this.marketId, this.price, this.volume, this.timeLength, this.timePlaced, "id:" + this.orderId];
 	}
 
 	public def getKindName():String {

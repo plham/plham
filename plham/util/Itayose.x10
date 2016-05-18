@@ -19,6 +19,7 @@ public class Itayose {
 		val sellUpdates = new ArrayList[AgentUpdate]();
 		var lastBuyPrice:Double = 0.0;
 		var lastSellPrice:Double = 0.0;
+		var sumExchangeVolume:Long = 0;
 		while (market.getBestBuyPrice() >= market.getBestSellPrice()) {
 			val buyOrder = market.buyOrderBook.getBestOrder();
 			val sellOrder = market.sellOrderBook.getBestOrder();
@@ -26,6 +27,7 @@ public class Itayose {
 			lastBuyPrice = buyOrder.getPrice();
 			lastSellPrice = sellOrder.getPrice();
 			val exchangeVolume = Math.min(buyOrder.getVolume(), sellOrder.getVolume());
+			sumExchangeVolume += exchangeVolume;
 
 			buyOrder.updateVolume(-exchangeVolume);
 			sellOrder.updateVolume(-exchangeVolume);
@@ -35,14 +37,18 @@ public class Itayose {
 
 			val buyUpdate = new AgentUpdate();
 			buyUpdate.agentId = buyOrder.agentId;
-			buyUpdate.marketId = market.id;
+			buyUpdate.marketId = buyOrder.marketId;
+			buyUpdate.orderId = buyOrder.orderId;
+			buyUpdate.price = Double.NaN;
 			buyUpdate.cashAmountDelta = Double.NaN;         // A buyer pays cash
 			buyUpdate.assetVolumeDelta = +assetVolumeDelta; // and gets stocks
 			buyUpdates.add(buyUpdate);
 
 			val sellUpdate = new AgentUpdate();
 			sellUpdate.agentId = sellOrder.agentId;
-			sellUpdate.marketId = market.id;
+			sellUpdate.marketId = sellOrder.marketId;
+			sellUpdate.orderId = sellOrder.orderId;
+			sellUpdate.price = Double.NaN;
 			sellUpdate.cashAmountDelta = Double.NaN;         // A seller gets cash
 			sellUpdate.assetVolumeDelta = -assetVolumeDelta; // and gives stocks
 			sellUpdates.add(sellUpdate);
@@ -57,16 +63,23 @@ public class Itayose {
 
 		// Or mid price???
 		val exchangePrice = (lastBuyPrice + lastSellPrice) / 2.0;
-		for (u in buyUpdates) {
-			val exchangeVolume = Math.abs(u.assetVolumeDelta);
+		for (update in buyUpdates) {
+			val exchangeVolume = Math.abs(update.assetVolumeDelta);
 			val cashAmountDelta = exchangePrice * exchangeVolume;
-			u.cashAmountDelta = -cashAmountDelta; // A buyer pays cash
+			update.price = exchangePrice;
+			update.cashAmountDelta = -cashAmountDelta; // A buyer pays cash
 		}
-		for (u in sellUpdates) {
-			val exchangeVolume = Math.abs(u.assetVolumeDelta);
+		for (update in sellUpdates) {
+			val exchangeVolume = Math.abs(update.assetVolumeDelta);
 			val cashAmountDelta = exchangePrice * exchangeVolume;
-			u.cashAmountDelta = +cashAmountDelta; // A seller gets cash
+			update.price = exchangePrice;
+			update.cashAmountDelta = +cashAmountDelta; // A seller gets cash
 		}
+
+		val t = market.getTime();
+		market.executedOrdersCounts(t) += buyUpdates.size();
+		market.lastExecutedPrices(t) = exchangePrice;
+		market.sumExecutedVolumes(t) = market.sumExecutedVolumes(t) + sumExchangeVolume;
 
 		Console.OUT.println("# Itayose exchangePrice " + exchangePrice);
 

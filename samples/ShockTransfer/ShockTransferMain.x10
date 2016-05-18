@@ -7,7 +7,6 @@ import plham.Event;
 import plham.IndexMarket;
 import plham.Main;
 import plham.Market;
-import plham.agent.ArbitrageAgent;
 import plham.agent.FCNAgent;
 import plham.index.CapitalWeightedIndexScheme;
 import plham.event.FundamentalPriceShock;
@@ -108,9 +107,7 @@ public class ShockTransferMain extends CI2002Main {
 	}
 
 	public def setupIndexMarket(market:IndexMarket, json:JSON.Value, random:JSONRandom) {
-		market.setTickSize(random.nextRandom(json("tickSize", "-1.0"))); // " tick-size <= 0.0 means no tick size.
-
-		val spots = getMarketsByNames(json("markets"));
+		val spots = getMarketsByName(json("markets"));
 		market.addMarkets(spots);
 
 		// WARN: Market's methods access to market.env is not available here :WARN

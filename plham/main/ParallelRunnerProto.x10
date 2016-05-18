@@ -194,9 +194,8 @@ public class ParallelRunnerProto[B]{B haszero, B isref, B <: Simulator} extends 
 		val updates = new ArrayList[List[Market.AgentUpdate]]();
 		for (market in plhE().markets) {
 			val t = market.getTime();
-			val logs = market.agentUpdates(t);
 			marketIds.add(market.id);
-			updates.add(logs);
+			updates.add(market.agentUpdates(t));
 		}
 		finish {
 			for (p in 1..(Place.numPlaces() - 1)) {
@@ -205,8 +204,9 @@ public class ParallelRunnerProto[B]{B haszero, B isref, B <: Simulator} extends 
 				async at (Place(p)) {
 					for (i in 0..(n - 1)) {
 						val id = marketIds(i);
-						val logs = updates(i);
-						plhE().markets(id).executeAgentUpdates(plhE().agents, logs);
+						for (update in updates(i)) {
+							plhE().markets(id).executeAgentUpdate(plhE().agents, update);
+						}
 					}
 				}
 			}

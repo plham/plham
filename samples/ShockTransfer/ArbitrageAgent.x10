@@ -1,4 +1,4 @@
-package plham.agent;
+package samples.ShockTransfer;
 import x10.util.ArrayList;
 import x10.util.List;
 import plham.Agent;

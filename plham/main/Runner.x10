@@ -98,15 +98,15 @@ public abstract class Runner[B]{B <: Simulator} {
 		val updates = new ArrayList[List[Market.AgentUpdate]]();
 		for (market in env.markets) {
 			val t = market.getTime();
-			val logs = market.agentUpdates(t);
 			marketIds.add(market.id);
-			updates.add(logs);
+			updates.add(market.agentUpdates(t));
 		}
 		val n = env.markets.size();
 		for (i in 0..(n - 1)) {
 			val id = marketIds(i);
-			val logs = updates(i);
-			env.markets(id).executeAgentUpdates(env.agents, logs);
+			for (update in updates(i)) {
+				env.markets(id).executeAgentUpdate(env.agents, update);
+			}
 		}
 	}
 
@@ -135,7 +135,8 @@ public abstract class Runner[B]{B <: Simulator} {
 			market.setRunning(withOrderExecution);
 		}
 		for (market in markets) {
-			market.cleanOrderBooks(market.getPrice()); // Better to use plham.util.Itayose?
+//			market.cleanOrderBooks(market.getPrice()); // Better to use plham.util.Itayose?
+			market.itayoseOrderBooks();
 		}
 		for (market in markets) {
 			market.check();
@@ -166,6 +167,7 @@ public abstract class Runner[B]{B <: Simulator} {
 			
 			for (market in markets) {
 				market.updateTime();
+				market.updateOrderBooks();
 			}
 		}
 	}

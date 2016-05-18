@@ -1,4 +1,4 @@
-package plham.samples.test;
+package samples.test;
 import x10.util.Random;
 import plham.Agent;
 import plham.Env;
@@ -14,7 +14,7 @@ public class MarketOrderTest {
 
 		val random = new RandomHelper(new Random()); // MEMO: main()
 
-		val market = new Market(-1);
+		val market = new Market(0);
 		market.setInitialMarketPrice(300.0);
 		market.setInitialFundamentalPrice(300.0);
 		market.setOutstandingShares(10000);
@@ -27,7 +27,7 @@ public class MarketOrderTest {
 		market.env.agents.add(agent);
 		
 		val rog = new RandomOrderGenerator(
-				(p:Double) => Math.max(0.0, p + g.nextGaussian() * 10),
+				(p:Double) => Math.max(0.0, p + random.nextGaussian() * 10),
 				() => 1,
 				() => random.nextLong(100) + 10);
 
