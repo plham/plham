@@ -77,7 +77,7 @@ public class FCNAgent extends Agent {
 
 		/* 式 (7) : テクニカル分析項（チャート） */
 		val chartScale = 1.0 / Math.max(timeWindowSize, 1);
-		val chartMeanLogReturn = noiseScale * Math.log(market.getPrice(t) / market.getPrice(t - timeWindowSize));
+		val chartMeanLogReturn = chartScale * Math.log(market.getPrice(t) / market.getPrice(t - timeWindowSize));
 		assert isFinite(chartMeanLogReturn) : "isFinite(chartMeanLogReturn)";
 
 		/* 式 (8) : ノイズ項 */
