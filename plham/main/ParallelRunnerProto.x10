@@ -29,9 +29,7 @@ public class ParallelRunnerProto[B]{B haszero, B isref, B <: Simulator} extends 
 		super.sim = this.plhE();
 	}
 
-	public def updateMarkets(var maxNormalOrders:Long, 
-			var maxHifreqOrders:Long, var diffPass:Boolean):void {
-				
+	public def updateMarkets(maxNormalOrders:Long, maxHifreqOrders:Long, diffPass:Boolean):void {
 		val orders = collectOrders(diffPass);
 		handleOrders(orders, maxHifreqOrders);
 		updateAgents();

@@ -144,53 +144,44 @@ public abstract class Simulator extends Env {
 
 	/**
 	 * Create an instance of Fundamentals based on the JSON object.
-	 * @param json  a JSON object, or properties of fundamentals
-	 * @param list  a list of markets they belong to this fundamentals
+	 * @param markets
+	 * @param json  a JSON object, or properties of correlations of fundamentals
 	 * @return a fundamentals
 	 */
-	public def createFundamentals(json:JSON.Value, list:JSON.Value):Fundamentals {
-		val table = new HashMap[String,Long]();
-
-		val graph = JSONUtils.getDependencyGraph(CONFIG, list, "markets");
-		val nodes = new ArrayList[String]();
-		for (name in graph.keySet()) {
-			if (!CONFIG(name)("class").equals("MarketGroup")) {
-				val i = nodes.size();
-				table(name) = i;
-				nodes.add(name);
-			}
-		}
-
+	public def createFundamentals(markets:List[Market], json:JSON.Value):Fundamentals {
 		val random = new JSONRandom(RANDOM);
 
-		val N = nodes.size();
-		val f = new Fundamentals(RANDOM, table, N);
+		val N = markets.size();
+		val f = new Fundamentals(RANDOM);
 
 		for (i in 0..(N - 1)) {
-			val name = nodes(i);
-			f.setInitial(name, random.nextRandom(CONFIG(name)(["fundamentalPrice", "marketPrice"])));
+			val m = markets(i);
+			f.setInitial(m, random.nextRandom(CONFIG(m.name)(["fundamentalPrice", "marketPrice"])));
 		}
 		for (i in 0..(N - 1)) {
-			val name = nodes(i);
-			f.setDrift(name, random.nextRandom(CONFIG(name)("fundamentalDrift", "0.0")));
+			val m = markets(i);
+			f.setDrift(m, random.nextRandom(CONFIG(m.name)("fundamentalDrift", "0.0")));
 		}
 		for (i in 0..(N - 1)) {
-			val name = nodes(i);
-			f.setVolatility(name, random.nextRandom(CONFIG(name)("fundamentalVolatility", "0.0")));
+			val m = markets(i);
+			f.setVolatility(m, random.nextRandom(CONFIG(m.name)("fundamentalVolatility", "0.0")));
 		}
 		if (json.has("pairwise")) {
 			val edges = json("pairwise");
 			for (k in 0..(edges.size() - 1)) {
 				val triple = edges(k);
-				val iname = triple(0).toString();
-				val jname = triple(1).toString();
-				f.setCorrelation(iname, jname, random.nextRandom(triple(2)));
+				val mi = getItemByName[Market](triple(0));
+				val mj = getItemByName[Market](triple(1));
+				f.setCorrelation(mi, mj, random.nextRandom(triple(2)));
 			}
 		}
 		for (i in 0..(N - 1)) {
-			val name = nodes(i);
-			f.setCorrelation(name, name, 1.0);
+			val m = markets(i);
+			f.setCorrelation(m, m, 1.0);
 		}
+		
+		f.setup(); // MAKE SURE to call this.
+
 		return f;
 	}
 
@@ -223,5 +214,66 @@ public abstract class Simulator extends Env {
 			market.updateFundamentalPrice(nextFundamental);
 			market.updateOrderBooks();
 		}
+	}
+
+	/**
+	 * Get a list of items (instances) stored in GLOBAL by the name.
+	 * @param name  a section name defined in the JSON config file.
+	 * @return a list of instances having the name.
+	 */
+	public def getItemsByName[T](name:String):List[T] {
+		return GLOBAL(name) as List[T];
+	}
+
+	/**
+	 * Get an item (instance) stored in GLOBAL by the name.
+	 * Since in GLOBAL even a single item is stored as <code>List</code>, the size must be 1.
+	 * This throws an exception if the size is &gt; 1.
+	 * @param name  a section name defined in the JSON config file.
+	 * @return an instance having the name.
+	 */
+	public def getItemByName[T](name:String):T {
+		val items = getItemsByName[T](name);
+		assert items.size() == 1 : "getItemByName() got more than one object";
+		return items(0);
+	}
+
+	/**
+	 * Get a list of items (instances) stored in GLOBAL specified by the list of names.
+	 * @param names  section names defined in the JSON config file.
+	 * @param n  the length of names.
+	 * @return a list of instances having the names.
+	 */
+	public def getItemsByName[T](names:(i:Long)=>String, n:Long):List[T] {
+		val items = new ArrayList[T]();
+		for (i in 0..(n - 1)) {
+			items.addAll(getItemsByName[T](names(i)));
+		}
+		return items;
+	}
+
+	/**
+	 * Get a list of items (instances) stored in GLOBAL specified by the list of names.
+	 * @param json  section name(s) (String or List) defined in the JSON config file.
+	 * @return a list of instances having the name(s).
+	 */
+	public def getItemsByName[T](json:JSON.Value):List[T] {
+		if (json.isList()) {
+			return getItemsByName[T]((i:Long) => json(i).toString(), json.size());
+		}
+		return getItemsByName[T](json.toString());
+	}
+
+	/**
+	 * Get an item (instance) stored in GLOBAL by the name.
+	 * Since in GLOBAL even a single item is stored as <code>List</code>, the size must be 1.
+	 * This throws an exception if the size is &gt; 1.
+	 * @param json  a section name (String or List) defined in the JSON config file.
+	 * @return an instance having the name.
+	 */
+	public def getItemByName[T](json:JSON.Value):T {
+		val items = getItemsByName[T](json);
+		assert items.size() == 1 : "getItemByName() got more than one object";
+		return items(0);
 	}
 }

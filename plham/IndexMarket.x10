@@ -4,7 +4,7 @@ import x10.util.List;
 import plham.index.IndexScheme;
 
 /**
- * IndexMarket is for a market (asset) associated with some underlying markets (assets).
+ * A class for markets (assets) associated with some underlying markets (assets).
  *
  * <p><ul>
  * <li> Call <code>addMarkets(List[Market])</code> to add underlying components.

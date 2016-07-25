@@ -49,7 +49,7 @@ public class RiskAverseFCNAgent extends FCNAgent {
 
 		/* 式 (7) : テクニカル分析項（チャート） */
 		val chartScale = 1.0 / Math.max(timeWindowSize, 1);
-		val chartMeanLogReturn = noiseScale * Math.log(market.getMarketPrice(t) / market.getMarketPrice(t - timeWindowSize));
+		val chartMeanLogReturn = chartScale * Math.log(market.getMarketPrice(t) / market.getMarketPrice(t - timeWindowSize));
 		assert isFinite(chartMeanLogReturn) : "isFinite(chartMeanLogReturn)";
 
 		/* 式 (8) : ノイズ項 */

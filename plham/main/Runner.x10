@@ -172,7 +172,7 @@ public abstract class Runner[B]{B <: Simulator} {
 		}
 	}
 
-	public def setupEnv(markets:List[Market],agents:List[Agent]) {
+	public def setupEnv(markets:List[Market], agents:List[Agent]) {
 		val env = this.env();
 		val normalAgents = new ArrayList[Agent]();
 		val hifreqAgents = new ArrayList[Agent]();
@@ -218,13 +218,6 @@ public abstract class Runner[B]{B <: Simulator} {
 		sim.RANDOM = RANDOM;
 		Console.OUT.println("# Random.seed " + seed);
 
-		//////// MULTIVARIATE GEOMETRIC BROWNIAN ////////
-
-		val fundamentals = sim.createFundamentals(CONFIG("simulation")("fundamentalCorrelations", "{}"), CONFIG("simulation")("markets"));
-		sim.updateFundamentals(fundamentals);
-		GLOBAL("fundamentals") = fundamentals as Any;
-
-
 		//////// MARKETS INSTANTIATION ////////
 
 		val markets = sim.createAllMarkets(CONFIG("simulation")("markets"));
@@ -238,6 +231,13 @@ public abstract class Runner[B]{B <: Simulator} {
 		val agents = sim.createAllAgents(CONFIG("simulation")("agents"));
 		GLOBAL("agents") = agents;
 		
+
+		//////// MULTIVARIATE GEOMETRIC BROWNIAN ////////
+
+		val fundamentals = sim.createFundamentals(markets, CONFIG("simulation")("fundamentalCorrelations", "{}"));
+		sim.updateFundamentals(fundamentals);
+		GLOBAL("fundamentals") = fundamentals as Any;
+
 
 		//////// SERIAL/PARALLEL ENV SETUP ////////
 

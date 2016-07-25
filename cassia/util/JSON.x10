@@ -133,12 +133,16 @@ public class JSON {
 		public def put[T](s:T, v:Value) {
 			if (this.isList()) {
 				val i = Long.parse(s.toString());
-				this.asList()(i) = v;
+				return this.asList()(i) = v;
 			}
 			if (this.isMap()) {
-				this.asMap().put(s.toString(), v);
+				return this.asMap().put(s.toString(), v);
 			}
 			throw new JSONException("Cannot assign to " + s + ": " + v);
+		}
+
+		public def put[T](s:T, v:Any) {
+			return this.put(s, new Value(v.toString()));
 		}
 
 		/**
@@ -203,6 +207,14 @@ public class JSON {
 		 */
 		public operator this[T](key:T):Value {
 			return this.get(key);
+		}
+
+		public operator this[T](key:T) = (v:Value) {
+			return this.put(key, v);
+		}
+
+		public operator this[T](key:T) = (v:Any) {
+			return this.put(key, v);
 		}
 
 		/**
@@ -324,6 +336,23 @@ public class JSON {
 			} catch (Exception) {
 				throw new JSONException("Cannot cast to Double: " + this.getExInfo());
 			}
+		}
+
+		public def clone():Value {
+			var value:Any = this.value;
+			if (this.isList()) {
+				val a = this.asList();
+				val h = new ArrayList[Value]();
+				h.addAll(a);
+				value = h;
+			}
+			if (this.isMap()) {
+				val a = this.asMap();
+				val h = new HashMap[String,Value]();
+				for (key in a.keySet()) { h(key) = a(key); }
+				value = h;
+			}
+			return new Value(value, this.p, this.i);
 		}
 	}
 
@@ -657,8 +686,13 @@ public class JSON {
 		Console.OUT.println(json("first"));
 		Console.OUT.println(json("first").toString());
 		
-//		json.put("5th", JSON.parse("123"));
-//		Console.OUT.println(json("5th"));
+		//json.put("5th", JSON.parse("123"));
+		val clon = json.clone();
+		clon("5th") = 123;
+		clon("first") = "10000000000";
+		Console.OUT.println("5th: " + clon("5th"));
+		Console.OUT.println(JSON.dump(json));
+		Console.OUT.println(JSON.dump(clon));
 
 		Console.OUT.println("JSON.Value as key: " + json(new JSON.Value("first")));
 

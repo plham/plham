@@ -94,67 +94,6 @@ public class Main extends Simulator {
 
 	//** Here are a list of utility methods to access to GLOBAL. */
 
-	/**
-	 * Get a list of items (instances) stored in GLOBAL by the name.
-	 * @param name  a section name defined in the JSON config file.
-	 * @return a list of instances having the name.
-	 */
-	public def getItemsByName[T](name:String):List[T] {
-		return GLOBAL(name) as List[T];
-	}
-
-	/**
-	 * Get an item (instance) stored in GLOBAL by the name.
-	 * Since in GLOBAL even a single item is stored as <code>List</code>, the size must be 1.
-	 * This throws an exception if the size is &gt; 1.
-	 * @param name  a section name defined in the JSON config file.
-	 * @return an instance having the name.
-	 */
-	public def getItemByName[T](name:String):T {
-		val items = getItemsByName[T](name);
-		assert items.size() == 1 : "getItemByName() got more than one object";
-		return items(0);
-	}
-
-	/**
-	 * Get a list of items (instances) stored in GLOBAL specified by the list of names.
-	 * @param names  section names defined in the JSON config file.
-	 * @param n  the length of names.
-	 * @return a list of instances having the names.
-	 */
-	public def getItemsByName[T](names:(i:Long)=>String, n:Long):List[T] {
-		val items = new ArrayList[T]();
-		for (i in 0..(n - 1)) {
-			items.addAll(getItemsByName[T](names(i)));
-		}
-		return items;
-	}
-
-	/**
-	 * Get a list of items (instances) stored in GLOBAL specified by the list of names.
-	 * @param json  section name(s) (String or List) defined in the JSON config file.
-	 * @return a list of instances having the name(s).
-	 */
-	public def getItemsByName[T](json:JSON.Value):List[T] {
-		if (json.isList()) {
-			return getItemsByName[T]((i:Long) => json(i).toString(), json.size());
-		}
-		return getItemsByName[T](json.toString());
-	}
-
-	/**
-	 * Get an item (instance) stored in GLOBAL by the name.
-	 * Since in GLOBAL even a single item is stored as <code>List</code>, the size must be 1.
-	 * This throws an exception if the size is &gt; 1.
-	 * @param json  a section name (String or List) defined in the JSON config file.
-	 * @return an instance having the name.
-	 */
-	public def getItemByName[T](json:JSON.Value):T {
-		val items = getItemsByName[T](json);
-		assert items.size() == 1 : "getItemByName() got more than one object";
-		return items(0);
-	}
-
 	public def getMarketsByName(json:JSON.Value) = getItemsByName[Market](json);
 
 	public def getMarketByName(json:JSON.Value) = getItemByName[Market](json);

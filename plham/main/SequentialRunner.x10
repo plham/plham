@@ -19,8 +19,7 @@ public class SequentialRunner[B]{B <: Simulator} extends Runner[B] {
 		super(sim);
 	}
 	
-	public def updateMarkets(maxNormalOrders:Long, 
-			maxHifreqOrders:Long, diffPass:Boolean) { 
+	public def updateMarkets(maxNormalOrders:Long, maxHifreqOrders:Long, diffPass:Boolean) { 
 		val orders = collectOrders(maxNormalOrders);
 		handleOrders(orders, maxHifreqOrders);
 	}

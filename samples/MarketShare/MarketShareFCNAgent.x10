@@ -8,15 +8,14 @@ import plham.util.Statistics;
 
 public class MarketShareFCNAgent extends FCNAgent {
 
-	public def submitOrders(markets:List[Market]):List[Order] {
-		val M = filterMarkets(markets);
+	public def submitOrders(var markets:List[Market]):List[Order] {
+		markets = filterMarkets(markets);
 		val weights = new ArrayList[Double]();
-		for (m in M) {
+		for (m in markets) {
 			weights.add(getSumTradeVolume(m));
 		}
 		val k = Statistics.roulette(getRandom(), weights);
-		val market = M(k);
-		return super.submitOrders(market);
+		return super.submitOrders(markets(k));
 	}
 
 	public def getSumTradeVolume(market:Market):Long {
