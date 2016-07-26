@@ -1,4 +1,3 @@
-setwd('/home/torii/prog/x10/github/plham-dev')
 
 args = commandArgs(T)
 if (length(args) < 2) {

@@ -9,7 +9,7 @@ mkdir -p answer
 mkdir -p oacis
 cp $home/plham/agent/FCNAgent.x10 .
 cp $home/samples/CI2002/CI2002Main.x10 .
-cp $home/samples/CI2002/*.R .
+cp $home/samples/FatTail/*.R .
 cp $home/samples/FatTail/oacis/run.sh oacis/run.sh
 cp $home/samples/FatTail/oacis/template.json oacis/template.json
 
