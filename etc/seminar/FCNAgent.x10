@@ -72,27 +72,24 @@ public class FCNAgent extends Agent {
 		
 		/* 式 (6) : ファンダメンタル分析項 */
 		val fundamentalScale = 1.0 / Math.max(timeWindowSize, 1);
-		val fundamentalLogReturn = fundamentalScale * Math.log(market.getFundamentalPrice(t) / market.getPrice(t));
+		val fundamentalLogReturn = fundamentalScale * /* ？？？ */;
 		assert isFinite(fundamentalLogReturn) : "isFinite(fundamentalLogReturn)";
 
 		/* 式 (7) : テクニカル分析項（チャート） */
 		val chartScale = 1.0 / Math.max(timeWindowSize, 1);
-		val chartMeanLogReturn = chartScale * Math.log(market.getPrice(t) / market.getPrice(t - timeWindowSize));
+		val chartMeanLogReturn = chartScale * /* ？？？ */;
 		assert isFinite(chartMeanLogReturn) : "isFinite(chartMeanLogReturn)";
 
 		/* 式 (8) : ノイズ項 */
-		val noiseLogReturn = 0.0 + this.noiseScale * random.nextGaussian();
+		val noiseLogReturn = /* ？？？ */;
 		assert isFinite(noiseLogReturn) : "isFinite(noiseLogReturn)";
 		
 		/* 式 (5) : 期待リターン */
-		val expectedLogReturn = (1.0 / (this.fundamentalWeight + this.chartWeight + this.noiseWeight))
-				* (this.fundamentalWeight * fundamentalLogReturn
-					+ this.chartWeight * chartMeanLogReturn * (this.isChartFollowing ? +1 : -1)
-					+ this.noiseWeight * noiseLogReturn);
+		val expectedLogReturn = /* ？？？ */;
 		assert isFinite(expectedLogReturn) : "isFinite(expectedLogReturn)";
 		
 		/* 式 (9) : 将来の期待価格  */
-		val expectedFuturePrice = market.getPrice(t) * Math.exp(expectedLogReturn * timeWindowSize);
+		val expectedFuturePrice = /* ？？？ */;
 		assert isFinite(expectedFuturePrice) : "isFinite(expectedFuturePrice)";
 
 		if (this.marginType == MARGIN_FIXED) {
@@ -106,12 +103,12 @@ public class FCNAgent extends Agent {
 			if (expectedFuturePrice > market.getPrice(t)) {
 				/* 式 (10) : 買い注文 */
 				orderPrice = expectedFuturePrice * (1 - this.orderMargin);
-				orders.add(new Order(Order.KIND_BUY_LIMIT_ORDER, this, market, orderPrice, orderVolume, timeWindowSize));
+				orders.add(new Order(/* ？？？ */));
 			}
 			if (expectedFuturePrice < market.getPrice(t)) {
 				/* 式 (11) : 売り注文 */
 				orderPrice = expectedFuturePrice * (1 + this.orderMargin);
-				orders.add(new Order(Order.KIND_SELL_LIMIT_ORDER, this, market, orderPrice, orderVolume, timeWindowSize));
+				orders.add(new Order(/* ？？？ */));
 			}
 			assert orderPrice >= 0.0 : ["orderPrice >= 0.0", orderPrice];
 			assert orderVolume >= 0 : ["orderVolume >= 0", orderVolume];
@@ -128,11 +125,11 @@ public class FCNAgent extends Agent {
 
 			if (expectedFuturePrice > orderPrice) {
 				/* 式 (10) : 買い注文 */
-				orders.add(new Order(Order.KIND_BUY_LIMIT_ORDER, this, market, orderPrice, orderVolume, timeWindowSize));
+				orders.add(new Order(/* ？？？ */));
 			}
 			if (expectedFuturePrice < orderPrice) {
 				/* 式 (11) : 売り注文 */
-				orders.add(new Order(Order.KIND_SELL_LIMIT_ORDER, this, market, orderPrice, orderVolume, timeWindowSize));
+				orders.add(new Order(/* ？？？ */));
 			}
 		}
 		return orders;

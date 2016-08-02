@@ -36,13 +36,7 @@ public class CI2002Main extends Main {
 		val random = new JSONRandom(getRandom());
 		val agents = new ArrayList[Agent]();
 		if (json("class").equals("FCNAgent")) {
-			val numAgents = json("numAgents").toLong();
-			for (i in 0..(numAgents - 1)) {
-				val agent = new FCNAgent();
-				setupFCNAgent(agent, json, random);
-				agents.add(agent);
-			}
-			Console.OUT.println("# " + json("class").toString() + " : " + JSON.dump(json));
+			/* ？？？ */
 		}
 		return agents;
 	}
