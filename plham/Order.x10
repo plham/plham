@@ -35,8 +35,8 @@ public class Order {
 	
 	/** Do not use this. */
 	public def this(kind:Kind, agentId:Long, marketId:Long, price:Double, volume:Long, timeLength:Long, timePlaced:Long, orderId:Long) {
-		assert price >= 0;
-		assert volume >= 0;
+		assert price >= 0.0 : "price >= 0.0";
+		assert volume >= 0 : "volume >= 0";
 		this.kind = kind;
 		this.agentId = agentId;
 		this.marketId = marketId;

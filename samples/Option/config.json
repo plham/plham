@@ -1,0 +1,208 @@
+{
+	"simulation": {
+		"markets": ["UnderlyingMarket", "OptionMarketCluster"],
+
+		"MEMO": "For http://plham.github.io/tutorial/OptionMain_UseCases",
+		"--agents": ["UnderFCNAgents", "FundamentalistOptionAgents", "ChartistOptionAgents", "NoiseOptionAgents"],
+		"--agents": ["UnderRandomAgents", "FundamentalistOptionAgents", "ChartistOptionAgents", "NoiseOptionAgents"],
+		"--agents": ["UnderFCNAgents", "OptionRandomAgents"],
+		"--agents": ["UnderRandomAgents", "OptionRandomAgents"],
+
+		"MEMO": "For http://plham.github.io/tutorial/OptionMain_UseCases02",
+		"agents": ["UnderFCNAgents", "FCNOptionAgentGroup"],
+		"--agents": ["UnderFCNAgents", "FCNOptionAgentGroup", "StraddleOptionAgents"],
+		"--agents": ["UnderFCNAgents", "FCNOptionAgentGroup", "StrangleOptionAgents"],
+		"--agents": ["UnderFCNAgents", "FCNOptionAgentGroup", "SyntheticOptionAgents"],
+		"--agents": ["UnderFCNAgents", "FCNOptionAgentGroup", "PutCallParityOptionAgents"],
+		"--agents": ["UnderFCNAgents", "FCNOptionAgentGroup", "DeltaHedgeOptionAgents"],
+		"--agents": ["UnderFCNAgents", "FCNOptionAgentGroup", "ExCoverDashOptionAgents"],
+		"--agents": ["UnderFCNAgents", "FCNOptionAgentGroup", "LeverageFCNOptionAgents"],
+		"--agents": ["UnderFCNAgents", "FCNOptionAgentGroup", "ProspectFCNOptionAgents"],
+		"--agents": ["UnderFCNAgents", "FCNOptionAgents"],
+		"sessions": [
+			{	"sessionName": 0,
+				"iterationSteps": 100,
+				"withOrderPlacement": true,
+				"withOrderExecution": false,
+				"withPrint": true
+			},
+			{	"sessionName": 1,
+				"iterationSteps": 3000,
+				"withOrderPlacement": true,
+				"withOrderExecution": true,
+				"withPrint": true
+			}
+		]
+	},
+
+	"UnderlyingMarket": {
+		"class": "Market",
+		"tickSize": 0.00001,
+		"marketPrice": 300.0,
+		"outstandingShares": 25000
+	},
+
+	"OptionMarketCluster": {
+		"class": "OptionMarketCluster",
+		"markets": ["UnderlyingMarket"],
+		"strikePrices": [250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350],
+		"--strikePrices": [280, 290, 300, 310, 320],
+		"--strikePrices": [290, 295, 300, 305, 310],
+		"maturityTimes": [300],
+		"marketPrice": 10.0,
+		"outstandingShares": 1
+	},
+
+	"FCNAgents": {
+		"class": "FCNAgent",
+		"numAgents": 500,
+
+		"MEMO": "Agent class",
+		"markets": ["UnderlyingMarket", "OptionMarketCluster"],
+		"assetVolume": 50,
+		"cashAmount": 10,
+
+		"MEMO": "FCNAgent class",
+		"fundamentalWeight": {"expon": [1.0]},
+		"chartWeight": {"expon": [0.5]},
+		"noiseWeight": {"expon": [1.0]},
+		"noiseScale": 0.001,
+		"timeWindowSize": [100, 200],
+		"orderMargin": [0.0, 0.1]
+	},
+
+	"UnderFCNAgents": {
+		"extends": "FCNAgents",
+		"markets": ["UnderlyingMarket"]
+	},
+
+	"UnderRandomAgents": {
+		"extends": "FCNAgents",
+		"markets": ["UnderlyingMarket"],
+		"fundamentalWeight": {"expon": [0.01]}, "MEMO": "This is the key for implied vol smile?",
+		"chartWeight": {"expon": [0.0]},
+		"noiseWeight": {"expon": [1.0]}
+	},
+
+	"OptionRandomAgents": {
+		"extends": "FCNAgents",
+		"markets": ["OptionMarketCluster"],
+		"fundamentalWeight": {"expon": [0.01]}, "MEMO": "This is the key for implied vol smile?",
+		"chartWeight": {"expon": [0.0]},
+		"noiseWeight": {"expon": [1.0]},
+		"noiseScale": 0.01
+	},
+
+	"OptionAgents": {
+		"numAgents": 500,
+
+		"MEMO": "Agent class",
+		"markets": ["UnderlyingMarket", "OptionMarketCluster"],
+		"assetVolume": [-10, 10],
+		"cashAmount": 10,
+		
+		"MEMO": "Any OptionAgent class",
+		"timeWindowSize": [20, 30]
+	},
+
+	"FCNOptionAgents": {
+		"extends": "OptionAgents",
+		"class": "FCNOptionAgent",
+
+		"fundamentalWeight": [0.1, 1.0],
+		"chartWeight": [0.1, 1.0],
+		"noiseWeight": [0.1, 1.0],
+
+		"alpha": {"normal": [0.957, 0.023]},
+		"betaPos": {"normal": [-0.242, 0.101]},
+		"betaNeg": {"normal": [+0.240, 0.075]},
+		"sigma": 0.01,
+		"numSamples": 20
+	},
+
+	"FundamentalistOptionAgents": {
+		"extends": "FCNOptionAgents",
+		"fundamentalWeight": 1.0,
+		"chartWeight": 0.0,
+		"noiseWeight": 0.0
+	},
+
+	"ChartistOptionAgents": {
+		"extends": "FCNOptionAgents",
+		"fundamentalWeight": 0.0,
+		"chartWeight": 1.0,
+		"noiseWeight": 0.0
+	},
+
+	"NoiseOptionAgents": {
+		"extends": "FCNOptionAgents",
+		"fundamentalWeight": 0.0,
+		"chartWeight": 0.0,
+		"noiseWeight": 1.0
+	},
+
+	"FCNOptionAgentGroup": {
+		"class": "AgentGroup",
+		"agents": ["FundamentalistOptionAgents", "ChartistOptionAgents", "NoiseOptionAgents"]
+	},
+
+	"StraddleOptionAgents": {
+		"extends": "OptionAgents",
+		"class": "StraddleOptionAgent"
+	},
+
+	"StrangleOptionAgents": {
+		"extends": "OptionAgents",
+		"class": "StrangleOptionAgent"
+	},
+
+	"SyntheticOptionAgents": {
+		"extends": "OptionAgents",
+		"class": "SyntheticOptionAgent"
+	},
+
+	"PutCallParityOptionAgents": {
+		"extends": "OptionAgents",
+		"class": "PutCallParityOptionAgent",
+		
+		"MEMO": "PutCallParityOptionAgent class",
+		"numSamples": 20
+	},
+
+	"DeltaHedgeOptionAgents": {
+		"extends": "OptionAgents",
+		"class": "DeltaHedgeOptionAgent",
+		
+		"MEMO": "DeltaHedgeOptionAgent class",
+		"hedgeBaselineVolume": 3,
+		"hedgeDeltaThreshold": 1.0, "MEMO": "Hedge if total delta > 1.0"
+	},
+
+	"ExCoverDashOptionAgents": {
+		"extends": "DeltaHedgeOptionAgents",
+		"class": "ExCoverDashOptionAgent",
+		
+		"MEMO": "ExCoverDashOptionAgent class",
+		"stepSize": 5, "MEMO": "ExAction if timeToMaturity <= 1 * stepSize; ExCover if <= 2 * stepSize; ExDash if <= 3 * stepSize"
+	},
+
+	"LeverageFCNOptionAgents": {
+		"extends": "FCNOptionAgents",
+		"class": "LeverageFCNOptionAgent",
+		
+		"MEMO": "LeverageFCNOptionAgents class",
+		"isUtilityMax": true,
+		"leverageBuyRate": 0.5
+	},
+
+	"ProspectFCNOptionAgents": {
+		"extends": "FCNOptionAgents",
+		"class": "ProspectFCNOptionAgent",
+		
+		"MEMO": "ProspectFCNOptionAgents class",
+		"probabilityWeight": 9.1,
+		"riskSensitivity": 0.00055,
+		"lossAversion": 2.3,
+		"lossProbability": 0.5
+	}
+}

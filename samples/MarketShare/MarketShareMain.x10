@@ -64,16 +64,12 @@ public class MarketShareMain extends CI2002Main {
 	}
 
 	public def setupMarketMakerAgent(agent:MarketMakerAgent, json:JSON.Value, random:JSONRandom) {
+		setupAgent(agent, json, random);
+
 		val targetMarket = getMarketByName(json("targetMarket"));
 		agent.targetMarketId = targetMarket.id;
 		agent.netInterestSpread = random.nextRandom(json("netInterestSpread"));
 		agent.orderTimeLength = random.nextRandom(json("orderTimeLength", "2")) as Long;
-
-		for (market in getMarketsByName(json("markets"))) {
-			agent.setMarketAccessible(market);
-			agent.setAssetVolume(market, random.nextRandom(json("assetVolume")) as Long);
-		}
-		agent.setCashAmount(random.nextRandom(json("cashAmount")));
 	}
 
 	// Defined in CI2002Main.

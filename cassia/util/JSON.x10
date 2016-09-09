@@ -343,13 +343,13 @@ public class JSON {
 			if (this.isList()) {
 				val a = this.asList();
 				val h = new ArrayList[Value]();
-				h.addAll(a);
+				for (item in a) { h.add(item.clone()); }
 				value = h;
 			}
 			if (this.isMap()) {
 				val a = this.asMap();
 				val h = new HashMap[String,Value]();
-				for (key in a.keySet()) { h(key) = a(key); }
+				for (key in a.keySet()) { h(key) = a(key).clone(); }
 				value = h;
 			}
 			return new Value(value, this.p, this.i);
@@ -690,6 +690,7 @@ public class JSON {
 		val clon = json.clone();
 		clon("5th") = 123;
 		clon("first") = "10000000000";
+		clon("4th")("one") = "ichi";
 		Console.OUT.println("5th: " + clon("5th"));
 		Console.OUT.println(JSON.dump(json));
 		Console.OUT.println(JSON.dump(clon));

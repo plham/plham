@@ -60,7 +60,17 @@ public class CI2002Main extends Main {
 		return markets;
 	}
 
+	public def setupAgent(agent:Agent, json:JSON.Value, random:JSONRandom) {
+		agent.setCashAmount(random.nextRandom(json("cashAmount")));
+		for (market in getMarketsByName(json("markets"))) {
+			agent.setMarketAccessible(market);
+			agent.setAssetVolume(market, random.nextRandom(json("assetVolume")) as Long);
+		}
+	}
+
 	public def setupFCNAgent(agent:FCNAgent, json:JSON.Value, random:JSONRandom) {
+		setupAgent(agent, json, random);
+
 		val MARGIN_TYPES = JSON.parse("{'fixed': " + FCNAgent.MARGIN_FIXED + ", 'normal': " + FCNAgent.MARGIN_NORMAL + "}");
 
 		agent.fundamentalWeight = random.nextRandom(json("fundamentalWeight"));
@@ -72,17 +82,6 @@ public class CI2002Main extends Main {
 		agent.timeWindowSize = random.nextRandom(json("timeWindowSize")) as Long;
 		agent.orderMargin = random.nextRandom(json("orderMargin"));
 		agent.marginType = MARGIN_TYPES(json("marginType", "fixed")).toLong();
-
-		for (market in getMarketsByName(json("markets"))) {
-			agent.setMarketAccessible(market);
-			agent.setAssetVolume(market, random.nextRandom(json("assetVolume")) as Long);
-		}
-		agent.setCashAmount(random.nextRandom(json("cashAmount")));
-//		assert json("markets").size() == 1 : "FCNAgents suppose only one Market";
-//		val market = getMarketByName(json("markets")(0));
-//		agent.setMarketAccessible(market);
-//		agent.setAssetVolume(market, random.nextRandom(json("assetVolume")) as Long);
-//		agent.setCashAmount(random.nextRandom(json("cashAmount")));
 	}
 
 	public def setupMarket(market:Market, json:JSON.Value, random:JSONRandom) {
