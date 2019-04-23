@@ -3,6 +3,7 @@ import x10.util.List;
 import x10.util.ArrayList;
 import x10.util.Random;
 import plham.Agent;
+import plham.agent.TestAgent;
 import plham.Env;
 import plham.Market;
 import plham.Order;
@@ -102,10 +103,12 @@ public class Itayose {
 //		market.updateTime();
 		market.env = new Env();
 
-		val agent = new Agent(0);
+		val agent = new TestAgent(0);
 		agent.setMarketAccessible(market);
-
-		market.env.agents.add(agent);
+		// TODO tkhack
+		val agents = new ArrayList[Agent]();
+		agents.add(agent);
+		market.env.agents = agents;
 		
 		val rog = new RandomOrderGenerator(
 				(p:Double) => Math.max(0.0, p + random.nextGaussian() * 10),

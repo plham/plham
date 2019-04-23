@@ -1,12 +1,32 @@
 package samples.MarketShare;
+import x10.util.Indexed;
 import x10.util.List;
 import x10.util.ArrayList;
+import x10.util.Random;
 import plham.Market;
 import plham.Order;
 import plham.agent.FCNAgent;
+import plham.main.Simulator;
 import plham.util.Statistics;
+import plham.util.JSON;
 
 public class MarketShareFCNAgent extends FCNAgent {
+
+	public def this(id:Long, name:String, random:Random) = super(id, name, random);
+	public def setup(json:JSON.Value, sim:Simulator):MarketShareFCNAgent = super.setup(json, sim) as MarketShareFCNAgent;
+	public static def register(sim:Simulator):void {
+		val className = "MarketShareFCNAgent";
+		sim.addAgentInitializer(className,
+			(
+				id:Long,
+				name:String, 
+				random:Random,
+				json:JSON.Value
+			) => {
+				return new MarketShareFCNAgent(id, name, random).setup(json, sim);
+			}
+		);
+	}
 
 	public def submitOrders(var markets:List[Market]):List[Order] {
 		markets = filterMarkets(markets);

@@ -6,8 +6,11 @@ import x10.util.Random;
 import plham.Agent;
 import plham.Market;
 import plham.Order;
+import plham.main.Simulator;
 import plham.util.RandomHelper;
 import plham.util.Statistics;
+import plham.util.JSON;
+import plham.util.JSONRandom;
 import samples.Option.OptionAgent;
 import samples.Option.OptionMarket;
 import samples.Option.pricer.OptionPricer;
@@ -33,21 +36,46 @@ public class FCNOptionAgent extends OptionAgent {
 	/** Noise scale parameter. */
 	public var sigma:Double; //public var noiseScale:Double;
 
+	public def this(id:Long, name:String, random:Random) = super(id, name, random);
+	public def setup(json:JSON.Value, sim:Simulator) {
+		super.setup(json, sim);
+		val random = new JSONRandom(this.getRandom());
+		this.fundamentalWeight = random.nextRandom(json("fundamentalWeight"));
+		this.chartWeight = random.nextRandom(json("chartWeight"));
+		this.noiseWeight = random.nextRandom(json("noiseWeight"));
+		this.timeWindowSize = random.nextRandom(json("timeWindowSize")) as Long;
+		this.numSamples = random.nextRandom(json("numSamples")) as Long;
+		this.alpha = random.nextRandom(json("alpha"));
+		this.betaPos = random.nextRandom(json("betaPos"));
+		this.betaNeg = random.nextRandom(json("betaNeg"));
+		this.sigma = random.nextRandom(json("sigma"));
+		return this;
+	}
+	public static def register(sim:Simulator) {
+		sim.addAgentInitializer("FCNOptionAgent", (id:Long, name:String, random:Random, json:JSON.Value) => {
+			return new FCNOptionAgent(id, name, random).setup(json, sim);
+		});
+	}
 	public var optionPricer:OptionPricer = new BlackScholesOptionPricer(); // This may not be used.
 
 	public def getOptionPricer():OptionPricer = optionPricer;
 
 	public def submitOrders(markets:List[Market]):List[Order] {
 		val orders = new ArrayList[Order]();
-
+		//Console.OUT.println("#s1("+ here.id +")"); 
 		val option = this.chooseOptionMarket(markets);
+		//Console.OUT.println("#s2("+ here.id +"):"+ option.typeName()+"," );
+		//Console.OUT.println("#s2("+ here.id +"):"+ option.env.typeName()+"," );
+		//Console.OUT.println("#s2("+ here.id +"):"+ option.env.markets.typeName()+"," );
 		val underlying = option.getUnderlyingMarket();
-
+		//val underlying = markets(option.underlyingMarketId);
+		//Console.OUT.println("#s3("+ here.id +")"); 
 		val t = option.getTime();
+		//Console.OUT.println("#s4("+ here.id +")"); 
 		assert t == underlying.getTime();
-
+		//Console.OUT.println("#s5("+ here.id +")"); 
 		val expectedVolatility = computeExpectedVolatility(underlying);
-
+		//Console.OUT.println("#s6("+ here.id +")"); 
 		val underlyingPrice = underlying.getPrice();
 		val strikePrice = option.getStrikePrice();
 		val volatility = expectedVolatility;
@@ -55,7 +83,7 @@ public class FCNOptionAgent extends OptionAgent {
 		val rateToMaturity = option.getRateToMaturity();
 		val riskFreeRate = option.getRiskFreeRate();
 		val dividendYield = option.getDividendYield();
-
+		//Console.OUT.println("s#6("+ here.id +")");
 		var expectedFuturePrice:Double = 0.0;
 		if (option.isCallOption()) {
 			expectedFuturePrice = getOptionPricer().premiumCall(underlyingPrice, strikePrice, volatility, rateToMaturity, riskFreeRate, dividendYield);
@@ -66,12 +94,12 @@ public class FCNOptionAgent extends OptionAgent {
 			expectedFuturePrice = 0.0001; // From Kawakubo (2015)
 		}
 
-		Console.OUT.println("# " + this.typeName()
+		/*Console.OUT.println("# " + this.typeName()
 			+ "{option.id: " + option.id
 			+ ",expectedFuturePrice: " + expectedFuturePrice
 			+ ",isBuy: " + (expectedFuturePrice < option.getPrice())
 			+ "}");
-
+*/
 		val orderPrice = expectedFuturePrice;
 		val orderVolume = 3;// From Kawakubo (2015)
 		if (expectedFuturePrice < option.getPrice()) {

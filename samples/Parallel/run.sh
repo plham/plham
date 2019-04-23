@@ -1,8 +1,8 @@
 #!/bin/bash
-# Usage: $ bash samples/Parallel/run.sh ./a.out samples/Parallel/config-002.json
+# Usage: $ bash samples/Parallel/run.sh ./a.out samples/Parallel/config-a002.json
 
 X10_NPLACES=3
-X10_NTHREADS=
+X10_NTHREADS=4
 X10RT_MPI_THREAD_SERIALIZED=true
 
 BS_WORKLOAD=true

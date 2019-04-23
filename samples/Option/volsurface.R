@@ -1,12 +1,15 @@
 
-args = commandArgs(T)
-if (length(args) < 2) {
-	cat("Usage: Rscript plot.R DATAFILE OUTFILE.png\n");
-	quit()
-}
+#args = commandArgs(T)
+#if (length(args) < 2) {
+#	cat("Usage: Rscript plot.R DATAFILE OUTFILE.png\n");
+#	quit()
+#}
 
-datafile = args[1]
-pngfile = args[2]
+#datafile = args[1]
+#pngfile = args[2]
+
+datafile = 'testOut.dat'
+pngfile = 'output.png'
 
 # https://en.wikipedia.org/wiki/Volatility_smile#Implied_volatility_surface
 # An implied volatility surface is a 3-D plot that plots volatility smile and term structure of volatility in a consolidated three-dimensional surface for all options on a given underlying asset.
@@ -21,9 +24,9 @@ cat('Extracting IMPLIED_VOLATILITY lines from', datafile, '\n')
 temp = tempfile(tmpdir=tempdir()) # NOTE: Use "tempdir" to create "tempfile"
 cat(grep('IMPLIED_VOLATILITY', readLines(datafile), value=T), file=temp, sep='\n')
 datafile = temp
-
 data = read.table(datafile, comment.char='')
 colnames(data) = c('IMP-VOL', 't', 'option.id', 'option.name', 'under.id', 'premium', 'under.price', 'strike', 'maturity', 'time.to.maturity', 'imp.vol.call', 'imp.vol.put')
+write(nrow(data),"")
 
 data = data[data$t > 500,]
 data = data[data$imp.vol.call < 5.0,] # Remove numerical errors (5 sigma will be okay)

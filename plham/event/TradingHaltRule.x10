@@ -1,9 +1,12 @@
 package plham.event;
 import x10.util.HashSet;
 import x10.util.List;
+import x10.util.Random;
 import x10.util.Set;
 import plham.Market;
 import plham.Order;
+import plham.main.Simulator;
+import plham.util.JSON;
 
 /**
  * A trading halt is a market regulation that suspends the trading of some assets.
@@ -11,6 +14,9 @@ import plham.Order;
  */
 public class TradingHaltRule implements Market.MarketEvent, Market.OrderEvent {
 
+	public val id:Long;
+	public val name:String;
+	public val random:Random;
 	public var referenceMarketId:Long;
 	public var referencePrice:Double;
 	public var triggerChangeRate:Double;
@@ -19,11 +25,14 @@ public class TradingHaltRule implements Market.MarketEvent, Market.OrderEvent {
 	public var activationCount:Long;
 	public var targetMarketIds:Set[Long];    // Use referenceMarket.id ?
 
-	public def this() {
+	public def this(id:Long, name:String, random:Random) {
 //		this.referenceMarketId = referenceMarket.id;
 //		this.referencePrice = referencePrice;
 //		this.triggerChangeRate = triggerChangeRate;
 //		this.haltingTimeLength = haltingTimeLength;
+		this.id = id;
+		this.name = name;
+		this.random = random;
 		this.haltingTimeStarted = Long.MIN_VALUE;
 		this.activationCount = 0;
 		this.targetMarketIds = new HashSet[Long]();
@@ -83,5 +92,24 @@ public class TradingHaltRule implements Market.MarketEvent, Market.OrderEvent {
 		for (market in markets) {
 			this.targetMarketIds.add(market.id);
 		}
+	}
+
+	public static def register(sim:Simulator) {
+		val name = "TradingHaltRule";
+		sim.addEventInitializer(name, (id:Long, name:String, random:Random, json:JSON.Value)=>{
+			return new TradingHaltRule(id, name, random).setup(json, sim);
+		});
+	}
+
+	public def setup(json:JSON.Value, sim:Simulator):TradingHaltRule {
+		val market = sim.getMarketByName(json("referenceMarket"));
+		this.referenceMarketId = market.id;
+		this.referencePrice = market.getPrice();
+		this.triggerChangeRate = json("triggerChangeRate").toDouble();
+		this.haltingTimeLength = json("haltingTimeLength").toLong();
+		val targetMarkets = sim.getMarketsByName(json("targetMarkets"));
+		this.addTargetMarkets(targetMarkets);
+		market.addAfterOrderHandlingEvent(this);
+		return this;
 	}
 }

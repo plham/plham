@@ -2,6 +2,7 @@ package plham.main;
 import x10.io.File;
 import x10.util.ArrayList;
 import x10.util.List;
+import x10.util.List;
 import x10.util.HashSet;
 import x10.util.HashMap;
 import x10.util.Set;
@@ -14,9 +15,19 @@ import plham.Fundamentals;
 import plham.IndexMarket;
 import plham.Market;
 import plham.Order;
+import plham.util.CentricAllocManager;
 import plham.util.JSON;
 import plham.util.JSONRandom;
 import plham.util.JSONUtils;
+import x10.io.Printer;
+
+import plham.agent.FCNAgent;
+import samples.ShockTransfer.ArbitrageAgent;
+
+import plham.event.FundamentalPriceShock;
+import plham.event.OrderMistakeShock;
+import plham.event.TradingHaltRule;
+import plham.event.PriceLimitRule;
 
 /**
  * A base class for execution models.
@@ -29,10 +40,20 @@ public abstract class Runner[B]{B <: Simulator} {
 
 	public var _PROFILE:Boolean = false;
 
-    public static val useTeam:Boolean = true;
+	public static val useTeam:Boolean = true;
+
+	protected static val HIFREQ_SUBMIT_RATE = System.getenv("HIFREQ_SUBMIT_RATE") != null ? Double.parse(System.getenv("HIFREQ_SUBMIT_RATE")) : 1.0;
     
     public def this(sim:B) {
     	this.sim = sim;
+		FCNAgent.register(sim);
+		ArbitrageAgent.register(sim);
+		Market.register(sim);
+		IndexMarket.register(sim);
+		FundamentalPriceShock.register(sim);
+		OrderMistakeShock.register(sim);
+		TradingHaltRule.register(sim);
+		PriceLimitRule.register(sim);
     }
 
 	public def env():Env = this.sim;
@@ -44,6 +65,7 @@ public abstract class Runner[B]{B <: Simulator} {
 		val markets = env.markets;
 
 		val random = sim.getRandom();
+		val tmpRandom = new Random(System.nanoTime());
         val agents = env.hifreqAgents; 
 		val randomAgents = new RandomPermutation[Agent](random, agents);
 		val randomOrders = new RandomPermutation[List[Order]](random, localOrders);
@@ -58,6 +80,10 @@ public abstract class Runner[B]{B <: Simulator} {
 				m.handleOrder(order); // NOTE: DO it now.
 				m.triggerAfterOrderHandlingEvents(order);
 				m.tickUpdateMarketPrice();
+			}
+
+			if (HIFREQ_SUBMIT_RATE < tmpRandom.nextDouble()) {
+				continue;
 			}
 
 			var k:Long = 0;
@@ -80,7 +106,6 @@ public abstract class Runner[B]{B <: Simulator} {
 					k++;
 				}
 			}
-
 		}
 
 		val endTime = System.nanoTime();
@@ -90,24 +115,6 @@ public abstract class Runner[B]{B <: Simulator} {
 			Console.OUT.println("#PROFILE NUM-HIFREQ-ORDERS " + allOrders.size());
 		}
 		return allOrders;
-	}
-	
-	public def updateAgents() {
-		val env = this.env();
-		val marketIds = new ArrayList[Long]();
-		val updates = new ArrayList[List[Market.AgentUpdate]]();
-		for (market in env.markets) {
-			val t = market.getTime();
-			marketIds.add(market.id);
-			updates.add(market.agentUpdates(t));
-		}
-		val n = env.markets.size();
-		for (i in 0..(n - 1)) {
-			val id = marketIds(i);
-			for (update in updates(i)) {
-				env.markets(id).executeAgentUpdate(env.agents, update);
-			}
-		}
 	}
 
 	def syncCheck(markets:List[Market]) {
@@ -129,6 +136,7 @@ public abstract class Runner[B]{B <: Simulator} {
 			withOrderPlacement:Boolean, withOrderExecution:Boolean, withPrint:Boolean, forDummyTimeseries:Boolean,
 			maxNormalOrders:Long, maxHifreqOrders:Long,
 			fundamentals:Fundamentals) {
+		//Console.OUT.println("#hoge1-1");
 		val env = this.env();
 		val markets = env.markets;  
 		for (market in markets) {
@@ -141,34 +149,39 @@ public abstract class Runner[B]{B <: Simulator} {
 		for (market in markets) {
 			market.check();
 		}
+		//Console.OUT.println("#hoge1-2SessionName:"+sessionName+",itestep:"+iterationSteps+",withplacement:"+withOrderPlacement);
 		for (t in 1..iterationSteps) {
+			sim.updateFundamentals(fundamentals);
 			for (market in markets) {
 				market.triggerBeforeSimulationStepEvents(); // Assuming the markets in dependency order.
 			}
-
+			//Console.OUT.println("#hoge1-3:t="+t);
 			if (withOrderPlacement) {
 				updateMarkets(maxNormalOrders, maxHifreqOrders, t > 0);
 			}
-			
-			sim.updateFundamentals(fundamentals);
+			//Console.OUT.println("#hoge1-4");			
 			if (forDummyTimeseries) {
 				sim.updateMarketsUsingFundamentalPrice(markets, fundamentals);
 			} else {
 				sim.updateMarketsUsingMarketPrice(markets, fundamentals);
 			}
-
+			//Console.OUT.println("#hoge1-5");
 			if (withPrint) {
 				sim.print(sessionName);
 			}
-
+			//Console.OUT.println("#hoge1-6");
 			for (market in markets) {
 				market.triggerAfterSimulationStepEvents();
 			}
-			
+			//Console.OUT.println("#hoge1-7");			
 			for (market in markets) {
 				market.updateTime();
 				market.updateOrderBooks();
 			}
+			//Console.OUT.println("#hoge1-8");
+		}
+		if (withPrint) {
+			sim.endprint(sessionName,iterationSteps);
 		}
 	}
 
@@ -183,14 +196,13 @@ public abstract class Runner[B]{B <: Simulator} {
 				normalAgents.add(a);
 			}
 		}
-		
+
 		for (m in markets) { m.env = env; }
 		env.markets = markets;
 		env.agents = agents;
 		env.normalAgents = normalAgents;
 		env.hifreqAgents = hifreqAgents;
 	}
-	
 	public def run(args:Rail[String]) {
 		if (args.size < 1) {
 			throw new Exception("Usage: ./a.out config.json [SEED]");
@@ -212,7 +224,7 @@ public abstract class Runner[B]{B <: Simulator} {
 		sim.GLOBAL = GLOBAL;
 		val CONFIG = JSON.parse(new File(args(0)));
 		sim.CONFIG = CONFIG;
-		JSON.extend(CONFIG);
+		JSON.extendDeeply(CONFIG, CONFIG);
 
 		val RANDOM = new Random(seed);
 		sim.RANDOM = RANDOM;
@@ -221,30 +233,29 @@ public abstract class Runner[B]{B <: Simulator} {
 		//////// MARKETS INSTANTIATION ////////
 
 		val markets = sim.createAllMarkets(CONFIG("simulation")("markets"));
-		GLOBAL("markets") = markets;
+		//TODO
+		val mrange = new ArrayList[LongRange](); mrange.add(0..(markets.size()-1));
+		sim.marketName2Ranges("markets") = mrange;
 
 		Console.OUT.println("# #(markets) " + markets.size());
 
-
 		//////// AGENTS INSTANTIATION ////////
-
-		val agents = sim.createAllAgents(CONFIG("simulation")("agents"));
-		GLOBAL("agents") = agents;
-		
+		val dm = new CentricAllocManager[Agent]();
+		sim.createAllAgents(CONFIG("simulation")("agents"), dm);
+		GLOBAL("agents") = dm.getBody();
 
 		//////// MULTIVARIATE GEOMETRIC BROWNIAN ////////
 
 		val fundamentals = sim.createFundamentals(markets, CONFIG("simulation")("fundamentalCorrelations", "{}"));
-		sim.updateFundamentals(fundamentals);
+		//val fundamentals = sim.createFundamentals(CONFIG("simulation")("fundamentalCorrelations", "{}"), CONFIG("simulation")("markets"));
 		GLOBAL("fundamentals") = fundamentals as Any;
-
 
 		//////// SERIAL/PARALLEL ENV SETUP ////////
 
-		setupEnv(markets, agents);
+		setupEnv(markets, dm.getBody()); // TODObyTK
 
-//		Console.OUT.println("# #(agents) " + agents.size());
-//		Console.OUT.println("# #(hifreqAgents) " + env().hifreqAgents.size());
+		//Console.OUT.println("# #(agents) " + agents.size());
+		//Console.OUT.println("# #(hifreqAgents) " + env().hifreqAgents.size());
 
 		//////// MAIN SIMULATION PROCEDURE ////////
 
@@ -252,9 +263,17 @@ public abstract class Runner[B]{B <: Simulator} {
 
 		val sessions = CONFIG("simulation")("sessions");
 		for (i in 0..(sessions.size() - 1)) {
+
+		Console.OUT.println("------------Session "+i+" Start@"+here);
 			val json = sessions(i);
 			val sessionName = json("sessionName").toString();
-			val iterationSteps = json("iterationSteps").toLong();
+			val iterationSteps:Long;
+			if(json.has("iterationSteps")){
+				iterationSteps = json("iterationSteps").toLong();
+			}else{
+				iterationSteps = json("iterationDays").toLong()*CONFIG("numStepsOneDay").toLong();
+			}
+
 			val withOrderPlacement = json("withOrderPlacement").toBoolean();
 			val withOrderExecution = json("withOrderExecution").toBoolean();
 			val withPrint = json("withPrint", "true").toBoolean();
@@ -281,21 +300,25 @@ public abstract class Runner[B]{B <: Simulator} {
 				val events = sim.createAllEvents(json("events"));
 				GLOBAL("events") = events;
 			}
-
+			//Console.OUT.println("#hoge0");
 			sim.beginSession(sessionName);
-
+			//Console.OUT.println("#hoge1");
 			iterateMarketUpdates(
 					sessionName, iterationSteps,
 					withOrderPlacement, withOrderExecution, withPrint, forDummyTimeseries,
 					maxNormalOrders, maxHifreqOrders,
 					fundamentals);
-			
+			//Console.OUT.println("#hoge2");			
 			sim.endSession(sessionName);
+			//Console.OUT.println("#hoge3");
 		}
-
 		sim.endSimulation();
 
 		val TIME_THE_END = System.nanoTime();
 		Console.OUT.println("# TIME " + ((TIME_THE_END - TIME_THE_BEGINNING) / 1e+9));
 	}
 }
+// Local Variables:
+// indent-tabs-mode: t
+// tab-width: 4
+// End:

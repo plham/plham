@@ -1,12 +1,36 @@
 package samples.DarkPool;
 import x10.util.List;
 import x10.util.ArrayList;
+import x10.util.Random;
 import plham.Market;
 import plham.Order;
 import plham.agent.FCNAgent;
+import plham.main.Simulator;
+import plham.util.JSON;
+import plham.util.JSONRandom;
 import plham.util.RandomHelper;
 
 public class DarkPoolFCNAgent extends FCNAgent {
+
+	public def this(id:Long, name:String, random:Random) = super(id, name, random);
+	public def setup(json:JSON.Value, sim:Simulator):DarkPoolFCNAgent {
+		super.setup(json, sim);
+		this.darkPoolChance = new JSONRandom(this.getRandom()).nextRandom(json("darkPoolChance"));
+		return this;
+	}
+	public static def register(sim:Simulator) {
+		val className = "DarkPoolFCNAgent";
+		sim.addAgentInitializer(className,
+			(
+				id:Long,
+				name:String, 
+				random:Random,
+				json:JSON.Value
+			) => {
+				return new DarkPoolFCNAgent(id, name, random).setup(json, sim);
+			}
+		);
+	}
 
 	public var darkPoolChance:Double;
 

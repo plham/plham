@@ -24,7 +24,7 @@
 				"iterationSteps": 100,
 				"withOrderPlacement": true,
 				"withOrderExecution": false,
-				"withPrint": true
+				"withPrint": false
 			},
 			{	"sessionName": 1,
 				"iterationSteps": 3000,
@@ -44,13 +44,16 @@
 
 	"OptionMarketCluster": {
 		"class": "OptionMarketCluster",
-		"markets": ["UnderlyingMarket"],
+		"maturityTimes": [ 300 ],
 		"strikePrices": [250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350],
 		"--strikePrices": [280, 290, 300, 310, 320],
 		"--strikePrices": [290, 295, 300, 305, 310],
-		"maturityTimes": [300],
-		"marketPrice": 10.0,
-		"outstandingShares": 1
+		"base": {
+			"class": "OptionMarket",
+			"markets": ["UnderlyingMarket"],
+			"marketPrice": 10.0,
+			"outstandingShares": 1
+		}
 	},
 
 	"FCNAgents": {
@@ -143,6 +146,7 @@
 
 	"FCNOptionAgentGroup": {
 		"class": "AgentGroup",
+		"requires": ["FundamentalistOptionAgents", "ChartistOptionAgents", "NoiseOptionAgents"],
 		"agents": ["FundamentalistOptionAgents", "ChartistOptionAgents", "NoiseOptionAgents"]
 	},
 

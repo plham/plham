@@ -1,17 +1,42 @@
 package samples.InvestDiv;
+import x10.util.Indexed;
 import x10.util.List;
 import x10.util.ArrayList;
+import x10.util.Random;
 import plham.Market;
 import plham.Order;
 import plham.agent.FCNAgent;
+import plham.main.Simulator;
+import plham.util.JSON;
 
 /** The regulation for investment diversification. */
 public class InvestDivFCNAgent extends FCNAgent {
 
 	public var leverageRatio:Double;
 	public var diversityRatio:Double;
+	
+	public def this(id:Long, name:String, random:Random) = super(id, name, random);
+	public def setup(json:JSON.Value, sim:Simulator):InvestDivFCNAgent {
+		super.setup(json, sim);
+		this.leverageRatio = json("leverageRatio").toDouble();
+		this.diversityRatio = json("diversityRatio").toDouble();
+		return this;
+	}
+	public static def register(sim:Simulator) {
+		val className = "InvestDivFCNAgent";
+		sim.addAgentInitializer(className,
+			(
+				id:Long,
+				name:String, 
+				random:Random,
+				json:JSON.Value
+			) => {
+				return new InvestDivFCNAgent(id, name, random).setup(json, sim);
+			}
+		);
+	}
 
-	public def filterMarkets(markets:List[Market]):List[Market] {
+	public def filterMarkets(markets:Indexed[Market]):List[Market] {
 		val a = new ArrayList[Market]();
 		for (market in markets) {
 			if (this.isMarketAccessible(market)) {
@@ -25,7 +50,7 @@ public class InvestDivFCNAgent extends FCNAgent {
 		return market.getPrice() * getAssetVolume(market);
 	}
 
-	public def submitOrders(markets:List[Market]):List[Order] {
+	public def submitOrders(markets:Indexed[Market]):List[Order] {
 		val leverageRatio = 1.0;
 		val m = filterMarkets(markets);
 		var nav:Double = getCashAmount(); // netAssetValue

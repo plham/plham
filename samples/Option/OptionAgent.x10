@@ -10,6 +10,8 @@ import plham.util.Statistics;
 public class OptionAgent extends Agent {
 
 	public val timeUnlimited = 1e+10 as Long; // Very long future
+	
+	public def this(id:Long, name:String, random:Random) = super(id, name, random);
 
 	public def chooseUnderlyingMarket(markets:List[Market]):Market {
 		return getRandomUnderlyingMarket(this, markets, getRandom());
@@ -62,8 +64,11 @@ public class OptionAgent extends Agent {
 				options.add(market.id);
 			}
 		}
+		//Console.OUT.println("#msize:"+  markets.size() );
+		//Console.OUT.println("#opsize:"+  options.size() );
 		assert options.size() > 0;
-		val i = options(random.nextLong(options.size()));
+		val n = random.nextLong(options.size());
+		val i = options(n);
 		return markets(i) as OptionMarket;
 	}
 	
@@ -84,8 +89,11 @@ public class OptionAgent extends Agent {
 				}
 			}
 		}
+		//Console.OUT.println("#msize:"+  markets.size() );
+		//Console.OUT.println("#opsize:"+  options.size() );
 		assert options.size() > 0;
-		val i = options(random.nextLong(options.size()));
+		val n = random.nextLong(options.size());
+		val i = options(n);
 		return markets(i) as Market;
 	}
 

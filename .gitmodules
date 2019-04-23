@@ -1,0 +1,6 @@
+[submodule "cassiaX10lib"]
+	path = cassiaX10lib
+	url = git@github.com:handist/cassiaX10lib.git
+[submodule "xsub"]
+	path = xsub
+	url = git@github.com:crest-cassia/xsub.git

@@ -6,6 +6,9 @@ import x10.util.Random;
 import plham.Agent;
 import plham.Market;
 import plham.Order;
+import plham.main.Simulator;
+import plham.util.JSON;
+import plham.util.JSONRandom;
 import plham.util.RandomHelper;
 import plham.util.Statistics;
 import samples.Option.OptionAgent;
@@ -21,6 +24,20 @@ public class LeverageFCNOptionAgent extends FCNOptionAgent {
 	public var isUtilityMax:Boolean = true;
 	/** The probability of buy orders. */
 	public var leverageBuyRate:Double = 0.5; // In Kawakubo (2015), 0.0 or 1.0.
+	
+	public def this(id:Long, name:String, random:Random) = super(id, name, random);
+	public def setup(json:JSON.Value, sim:Simulator) {
+		super.setup(json, sim);
+		val random = new JSONRandom(this.getRandom());
+		this.isUtilityMax = json("isUtilityMax").toBoolean();
+		this.leverageBuyRate = random.nextRandom(json("leverageBuyRate"));
+		return this;
+	}
+	public static def register(sim:Simulator) {
+		sim.addAgentInitializer("LeverageFCNOptionAgent", (id:Long, name:String, random:Random, json:JSON.Value) => {
+			return new LeverageFCNOptionAgent(id, name, random).setup(json, sim);
+		});
+	}
 
 	public def submitOrders(markets:List[Market]):List[Order] {
 		val orders = new ArrayList[Order]();
@@ -55,7 +72,7 @@ public class LeverageFCNOptionAgent extends FCNOptionAgent {
 			}
 			expectedPrices(option) = expectedFuturePrice;
 
-			isBuyOrder(option) = (random.nextDouble() < this.leverageBuyRate);
+			isBuyOrder(option) = (this.getRandom().nextDouble() < this.leverageBuyRate);
 			// MEMO: In Kawakubo (2015) this is completely determined by the config: 100% buy or 100% sell.
 			// It should be chosen like FCNOptionAgent in comparison with option.getPrice().
 			// E.g. isBuyOrder(option) = (expectedFuturePrice < option.getPrice());

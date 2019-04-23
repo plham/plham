@@ -3,6 +3,7 @@ import x10.util.ArrayList;
 import x10.util.List;
 import x10.util.Random;
 import plham.Agent;
+import plham.agent.TestAgent;
 import plham.Market;
 import plham.Order;
 import plham.util.RandomHelper;
@@ -54,7 +55,7 @@ public class RandomOrderGenerator {
 				() => 1,
 				() => random.nextLong(100) + 10);
 
-		val agent = new Agent(-1);
+		val agent = new TestAgent(-1);
 
 		for (order in rog.get(market, () => agent, 100)) {
 			Console.OUT.println(order);

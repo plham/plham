@@ -1,0 +1,151 @@
+{
+    "debug": 0,
+    "numStepsOneDay": 5,
+    "numDaysOneMonth": 30,
+    "TPORT": 30,
+    "MEMO": "For example,if this TPORT is 120, it means 120 days = 120*numStepsOneDay steps.",
+    "timeWindowSize": 200,
+    "covarfundamentalWeight": 0.5,
+    "simulation": {
+        "markets": [
+            "market-1","market-2","market-3","market-4"
+        ],
+        "agents": [
+            "agentsL1",
+            "agentsL2",
+            "agentsL3",
+            "agentsL4",
+            "agentsM"
+        ],
+        "sessions": [
+            {
+                "sessionName": 0,
+                "iterationDays": 6000,
+                "MEMO": "This iterationSteps (Runner.x10) = iterationDays*numStepsOneDay should satisfy the following condition: iterationSteps >= max{ tport*numStepsOneDay*timeWindowSize, numStepsOneDay*sizeDistVaR }",
+                "withOrderPlacement": false,
+                "withOrderExecution": false,
+                "withPrint": false,
+                "isForDummyTimeseries": true,
+                "maxNormalOrders": 8, "MEMO":"8 or 8000",
+                "events": [
+                    "FundamentalPriceShock"
+                ]
+            },
+            {
+                "sessionName": 1,
+                "iterationDays": 6000,
+                "MEMO": "This iterationSteps (Runner.x10) = (iterationDays+1)*numStepsOneDay",
+                "withOrderPlacement": true,
+                "withOrderExecution": true,
+                "withPrint": true,
+                "isForDummyTimeseries": false,
+                "maxNormalOrders": 8, "MEMO":"8 or 8000"
+            },
+            {
+                "sessionName": 2,
+                "iterationDays": 60000,
+                "MEMO": "This iterationSteps (Runner.x10) = (iterationDays+1)*numStepsOneDay",
+                "withOrderPlacement": true,
+                "withOrderExecution": true,
+                "withPrint": true,
+                "isForDummyTimeseries": false,
+                "maxNormalOrders": 8, "MEMO":"8 or 8000"
+            }
+        ]
+    },
+    "FundamentalPriceShock": {
+        "class": "FundamentalPriceShock",
+        "target": "market-1",
+        "triggerDays": 12000,
+        "MEMO": "Sign: negative for down; positive for up; zero for no change",
+        "priceChangeRate": -0.5,
+        "enabled": true
+    },
+    "fundamentalCorrelations": {
+        "logType": true
+    },
+    "class-Market": {
+        "class": "Market",
+        "marketPrice": 400.0,
+        "fundamentalVolatility": 0.000001,
+        "outstandingShares": 1000
+    },
+    "market-1": {
+        "extends": "class-Market"
+    },
+    "market-2": {
+        "extends": "class-Market"
+    },
+    "market-3": {
+        "extends": "class-Market"
+    },
+    "market-4": {
+        "extends": "class-Market"
+    },
+    "FCNMarkowitzPortfolioAgent": {
+        "class": "FCNMarkowitzPortfolioAgent",
+        "noiseScale": 0.001,
+        "logType": true,
+        "assetVolume": 50,
+        "cashAmount": 15000.0,
+        "fundamentalMeanReversionTime": {
+            "uniform": [
+                50,
+                150
+            ]
+        },
+		"fundamentalWeight": {"expon": [1.0]},
+		"chartWeight": {"expon": [0.0]},
+		"noiseWeight": {"expon": [1.0]},
+        "b": {
+            "uniform": [
+                0.00095,
+                0.00105
+            ]
+        },
+        "shortSellingAbility": false,
+        "tport": 30,
+        "MEMO": "timeWindowSizeは[t, t+TPORT]間の累積リターン，ボラを取ってくるサンプル数",
+        "timeWindowSize": [
+            80,
+            120
+        ],
+        "leverageRate": 1.0
+    },
+    "agentsL1": {
+        "extends": "FCNMarkowitzPortfolioAgent",
+        "numAgents": 1000,
+        "accessibleMarkets": [
+            "market-1"
+        ]
+    },
+    "agentsL2": {
+        "extends": "FCNMarkowitzPortfolioAgent",
+        "numAgents": 1000,
+        "accessibleMarkets": [
+            "market-2"
+        ]
+    },
+    "agentsL3": {
+        "extends": "FCNMarkowitzPortfolioAgent",
+        "numAgents": 1000,
+        "accessibleMarkets": [
+            "market-3"
+        ]
+    },
+    "agentsL4": {
+        "extends": "FCNMarkowitzPortfolioAgent",
+        "numAgents": 1000,
+        "accessibleMarkets": [
+            "market-4"
+        ]
+    },
+    "agentsM": {
+        "extends": "FCNMarkowitzPortfolioAgent",
+        "numAgents": 1000,
+        "accessibleMarkets": [
+            "market-1", "market-2", "market-3", "market-4"
+        ]
+    }
+
+}

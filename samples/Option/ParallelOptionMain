@@ -1,0 +1,266 @@
+# X10_NPLACES  3
+# X10_NTHREADS 2
+# Random.seed 1214304890484838379
+#GRAPH OptionMarketCluster checking
+#GRAPH OptionMarketCluster --> UnderlyingMarket created
+#GRAPH UnderlyingMarket checking
+#GRAPH UnderlyingMarket checking
+#GRAPH OptionMarketCluster --> UnderlyingMarket removed
+#GRAPH UnderlyingMarket removed
+#GRAPH OptionMarketCluster removed
+#GRAPH-SORTED [UnderlyingMarket,OptionMarketCluster]
+# Market : {"class":"Market","marketPrice":"300.0","tickSize":"0.00001","outstandingShares":"25000"}
+# OptionMarketCluster[Call,0,250,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,250,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,260,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,260,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,270,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,270,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,280,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,280,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,290,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,290,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,300,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,300,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,310,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,310,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,320,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,320,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,330,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,330,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,340,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,340,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,350,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,350,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,250,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,250,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,260,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,260,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,270,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,270,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,280,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,280,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,290,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,290,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,300,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,300,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,310,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,310,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,320,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,320,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,330,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,330,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,340,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,340,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Call,0,350,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# OptionMarketCluster[Put,0,350,300] : {"maturityTimes":["300"],"markets":["UnderlyingMarket"],"class":"OptionMarketCluster","strikePrices":["250","260","270","280","290","300","310","320","330","340","350"],"marketPrice":"10.0","--strikePrices":["290","295","300","305","310"],"outstandingShares":"1"}
+# #(markets) 45
+#GRAPH FCNOptionAgentGroup checking
+#GRAPH FCNOptionAgentGroup --> FundamentalistOptionAgents created
+#GRAPH FCNOptionAgentGroup --> ChartistOptionAgents created
+#GRAPH FCNOptionAgentGroup --> NoiseOptionAgents created
+#GRAPH NoiseOptionAgents checking
+#GRAPH ChartistOptionAgents checking
+#GRAPH FundamentalistOptionAgents checking
+#GRAPH UnderFCNAgents checking
+#GRAPH UnderFCNAgents removed
+#GRAPH FCNOptionAgentGroup --> NoiseOptionAgents removed
+#GRAPH NoiseOptionAgents removed
+#GRAPH FCNOptionAgentGroup --> FundamentalistOptionAgents removed
+#GRAPH FundamentalistOptionAgents removed
+#GRAPH FCNOptionAgentGroup --> ChartistOptionAgents removed
+#GRAPH ChartistOptionAgents removed
+#GRAPH FCNOptionAgentGroup removed
+#GRAPH-SORTED [UnderFCNAgents,NoiseOptionAgents,FundamentalistOptionAgents,ChartistOptionAgents,FCNOptionAgentGroup]
+# FCNAgent : {"noiseScale":"0.001","noiseWeight":{"expon":["1.0"]},"numAgents":"500","chartWeight":{"expon":["0.5"]},"markets":["UnderlyingMarket"],"class":"FCNAgent","extends":"FCNAgents","assetVolume":"50","MEMO":"FCNAgent class","cashAmount":"10","fundamentalWeight":{"expon":["1.0"]},"orderMargin":["0.0","0.1"],"timeWindowSize":["100","200"]}
+# FCNOptionAgent : {"betaNeg":{"normal":["+0.240","0.075"]},"betaPos":{"normal":["-0.242","0.101"]},"markets":["UnderlyingMarket","OptionMarketCluster"],"extends":"FCNOptionAgents","assetVolume":["-10","10"],"fundamentalWeight":"0.0","noiseWeight":"1.0","numSamples":"20","numAgents":"500","sigma":"0.01","chartWeight":"0.0","class":"FCNOptionAgent","MEMO":"Any OptionAgent class","cashAmount":"10","timeWindowSize":["20","30"],"alpha":{"normal":["0.957","0.023"]}}
+# FCNOptionAgent : {"betaNeg":{"normal":["+0.240","0.075"]},"betaPos":{"normal":["-0.242","0.101"]},"markets":["UnderlyingMarket","OptionMarketCluster"],"extends":"FCNOptionAgents","assetVolume":["-10","10"],"fundamentalWeight":"1.0","noiseWeight":"0.0","numSamples":"20","numAgents":"500","sigma":"0.01","chartWeight":"0.0","class":"FCNOptionAgent","MEMO":"Any OptionAgent class","cashAmount":"10","timeWindowSize":["20","30"],"alpha":{"normal":["0.957","0.023"]}}
+# FCNOptionAgent : {"betaNeg":{"normal":["+0.240","0.075"]},"betaPos":{"normal":["-0.242","0.101"]},"markets":["UnderlyingMarket","OptionMarketCluster"],"extends":"FCNOptionAgents","assetVolume":["-10","10"],"fundamentalWeight":"0.0","noiseWeight":"0.0","numSamples":"20","numAgents":"500","sigma":"0.01","chartWeight":"1.0","class":"FCNOptionAgent","MEMO":"Any OptionAgent class","cashAmount":"10","timeWindowSize":["20","30"],"alpha":{"normal":["0.957","0.023"]}}
+#GRAPH 0 checking
+#GRAPH 0 checking(sub)
+#GRAPH 0 --> 0 connected
+#GRAPH 34 checking
+#GRAPH 34 checking(sub)
+#GRAPH 34 --> 34 connected
+#GRAPH 19 checking
+#GRAPH 19 checking(sub)
+#GRAPH 19 --> 19 connected
+#GRAPH 4 checking
+#GRAPH 4 checking(sub)
+#GRAPH 4 --> 4 connected
+#GRAPH 38 checking
+#GRAPH 38 checking(sub)
+#GRAPH 38 --> 38 connected
+#GRAPH 23 checking
+#GRAPH 23 checking(sub)
+#GRAPH 23 --> 23 connected
+#GRAPH 8 checking
+#GRAPH 8 checking(sub)
+#GRAPH 8 --> 8 connected
+#GRAPH 42 checking
+#GRAPH 42 checking(sub)
+#GRAPH 42 --> 42 connected
+#GRAPH 27 checking
+#GRAPH 27 checking(sub)
+#GRAPH 27 --> 27 connected
+#GRAPH 12 checking
+#GRAPH 12 checking(sub)
+#GRAPH 12 --> 12 connected
+#GRAPH 31 checking
+#GRAPH 31 checking(sub)
+#GRAPH 31 --> 31 connected
+#GRAPH 16 checking
+#GRAPH 16 checking(sub)
+#GRAPH 16 --> 16 connected
+#GRAPH 1 checking
+#GRAPH 1 checking(sub)
+#GRAPH 1 --> 1 connected
+#GRAPH 35 checking
+#GRAPH 35 checking(sub)
+#GRAPH 35 --> 35 connected
+#GRAPH 20 checking
+#GRAPH 20 checking(sub)
+#GRAPH 20 --> 20 connected
+#GRAPH 5 checking
+#GRAPH 5 checking(sub)
+#GRAPH 5 --> 5 connected
+#GRAPH 39 checking
+#GRAPH 39 checking(sub)
+#GRAPH 39 --> 39 connected
+#GRAPH 24 checking
+#GRAPH 24 checking(sub)
+#GRAPH 24 --> 24 connected
+#GRAPH 9 checking
+#GRAPH 9 checking(sub)
+#GRAPH 9 --> 9 connected
+#GRAPH 43 checking
+#GRAPH 43 checking(sub)
+#GRAPH 43 --> 43 connected
+#GRAPH 28 checking
+#GRAPH 28 checking(sub)
+#GRAPH 28 --> 28 connected
+#GRAPH 13 checking
+#GRAPH 13 checking(sub)
+#GRAPH 13 --> 13 connected
+#GRAPH 32 checking
+#GRAPH 32 checking(sub)
+#GRAPH 32 --> 32 connected
+#GRAPH 17 checking
+#GRAPH 17 checking(sub)
+#GRAPH 17 --> 17 connected
+#GRAPH 2 checking
+#GRAPH 2 checking(sub)
+#GRAPH 2 --> 2 connected
+#GRAPH 36 checking
+#GRAPH 36 checking(sub)
+#GRAPH 36 --> 36 connected
+#GRAPH 21 checking
+#GRAPH 21 checking(sub)
+#GRAPH 21 --> 21 connected
+#GRAPH 6 checking
+#GRAPH 6 checking(sub)
+#GRAPH 6 --> 6 connected
+#GRAPH 40 checking
+#GRAPH 40 checking(sub)
+#GRAPH 40 --> 40 connected
+#GRAPH 25 checking
+#GRAPH 25 checking(sub)
+#GRAPH 25 --> 25 connected
+#GRAPH 10 checking
+#GRAPH 10 checking(sub)
+#GRAPH 10 --> 10 connected
+#GRAPH 44 checking
+#GRAPH 44 checking(sub)
+#GRAPH 44 --> 44 connected
+#GRAPH 29 checking
+#GRAPH 29 checking(sub)
+#GRAPH 29 --> 29 connected
+#GRAPH 14 checking
+#GRAPH 14 checking(sub)
+#GRAPH 14 --> 14 connected
+#GRAPH 33 checking
+#GRAPH 33 checking(sub)
+#GRAPH 33 --> 33 connected
+#GRAPH 18 checking
+#GRAPH 18 checking(sub)
+#GRAPH 18 --> 18 connected
+#GRAPH 3 checking
+#GRAPH 3 checking(sub)
+#GRAPH 3 --> 3 connected
+#GRAPH 37 checking
+#GRAPH 37 checking(sub)
+#GRAPH 37 --> 37 connected
+#GRAPH 22 checking
+#GRAPH 22 checking(sub)
+#GRAPH 22 --> 22 connected
+#GRAPH 7 checking
+#GRAPH 7 checking(sub)
+#GRAPH 7 --> 7 connected
+#GRAPH 41 checking
+#GRAPH 41 checking(sub)
+#GRAPH 41 --> 41 connected
+#GRAPH 26 checking
+#GRAPH 26 checking(sub)
+#GRAPH 26 --> 26 connected
+#GRAPH 11 checking
+#GRAPH 11 checking(sub)
+#GRAPH 11 --> 11 connected
+#GRAPH 30 checking
+#GRAPH 30 checking(sub)
+#GRAPH 30 --> 30 connected
+#GRAPH 15 checking
+#GRAPH 15 checking(sub)
+#GRAPH 15 --> 15 connected
+#GRAPH finished
+# 0 
+# 34 
+# 19 
+# 4 
+# 38 
+# 23 
+# 8 
+# 42 
+# 27 
+# 12 
+# 31 
+# 16 
+# 1 
+# 35 
+# 20 
+# 5 
+# 39 
+# 24 
+# 9 
+# 43 
+# 28 
+# 13 
+# 32 
+# 17 
+# 2 
+# 36 
+# 21 
+# 6 
+# 40 
+# 25 
+# 10 
+# 44 
+# 29 
+# 14 
+# 33 
+# 18 
+# 3 
+# 37 
+# 22 
+# 7 
+# 41 
+# 26 
+# 11 
+# 30 
+# 15 
+#Fundamentals.setup() finished
+# #groups 45
+#distributeLocalAgents: nWorker = 2
+#Dist Place(1) Copied local agents
+#Dist Place(2) Copied local agents
+#Dist LocalAgent after   total elapsed time:15.878886531999999
+#Dist Place(0) Copied HFT agents

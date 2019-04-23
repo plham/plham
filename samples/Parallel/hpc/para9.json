@@ -1,0 +1,307 @@
+{
+	"output": {
+		"orderbook": false,
+		"system-info": false
+	},
+
+	"gc-every-loop": false,
+
+	"#iteration": 2000,
+
+	"market-update-scheme": 3,
+	"num-underlying-assets": 10,
+
+	"simulation-steps": 25,
+	"initiation-steps": 0,
+	"transient-steps": 0,
+
+	"#spot-markets": 9,
+	"#index-markets": 1,
+
+	"spot-markets": {
+		"fundamental-correlation": {
+			"a": 0.0,
+			"b": 0.0,
+			"c": 0.0
+		},
+		"0": {
+			"#agents": 500,
+			"initial-price": 300.0,
+			"outstanding-shares": 25000,    "NOTE":"500x50",
+			"fundamental-initial-price": 300.0,
+			"fundamental-drift": 0.0,
+			"fundamental-volatility": 0.0,
+			"agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.5,
+				"chart-weight": 0.0,
+				"noise-weight": 0.9,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			},
+			"#init-agents": 500,
+			"init-agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.9,
+				"chart-weight": 0.0,
+				"noise-weight": 0.2,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			}
+		},
+		"1": {
+			"#agents": 500,
+			"initial-price": 300.0,
+			"outstanding-shares": 25000,    "NOTE":"500x50",
+			"fundamental-initial-price": 300.0,
+			"fundamental-drift": 0.0,
+			"fundamental-volatility": 0.0,
+			"agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.5,
+				"chart-weight": 0.0,
+				"noise-weight": 0.9,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			},
+			"#init-agents": 500,
+			"init-agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.9,
+				"chart-weight": 0.0,
+				"noise-weight": 0.2,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			}
+		},
+		"2": {
+			"#agents": 500,
+			"initial-price": 300.0,
+			"outstanding-shares": 25000,    "NOTE":"500x50",
+			"fundamental-initial-price": 300.0,
+			"fundamental-drift": 0.0,
+			"fundamental-volatility": 0.0,
+			"agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.5,
+				"chart-weight": 0.0,
+				"noise-weight": 0.9,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			},
+			"#init-agents": 500,
+			"init-agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.9,
+				"chart-weight": 0.0,
+				"noise-weight": 0.2,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			}
+		},
+		"etf-default": {
+			"#agents": 500,
+			"initial-price": 300.0,
+			"outstanding-shares": 25000,    "NOTE":"500x50",
+			"fundamental-initial-price": 300.0,
+			"fundamental-drift": 0.0,
+			"fundamental-volatility": 0.0,
+			"agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.01,
+				"chart-weight": 0.0,
+				"noise-weight": 0.4,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			},
+			"#init-agents": 500,
+			"init-agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.9,
+				"chart-weight": 0.0,
+				"noise-weight": 0.2,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			}
+		},
+		"default": {
+			"#agents": 500,
+			"initial-price": 300.0,
+			"outstanding-shares": 25000,    "NOTE":"500x50",
+			"fundamental-initial-price": 300.0,
+			"fundamental-drift": 0.0,
+			"fundamental-volatility": 0.0,
+			"agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.4,
+				"chart-weight": 0.0,
+				"noise-weight": 0.2,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			},
+			"#init-agents": 500,
+			"init-agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.9,
+				"chart-weight": 0.0,
+				"noise-weight": 0.2,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			}
+		}
+	},
+	"index-markets": {
+		"default": {
+			"#agents": 500,
+			"initial-price": 300.0,
+			"outstanding-shares": 25000,    "NOTE":"500x50",
+			"fundamental-initial-price": 300.0,
+			"agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.5,
+				"chart-weight": 0.0,
+				"noise-weight": 0.9,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			},
+			"#init-agents": 500,
+			"init-agent": {
+				"order-making": "CIP2004",
+				"fundamental-weight": 0.9,
+				"chart-weight": 0.0,
+				"noise-weight": 0.2,
+				"time-window-size": 100,
+				"time-window-size-min": 10,
+				"noise-scale": 0.001,
+				"risk-aversion": 0.1,
+				"margin-width": 0.1,
+				"information-delay": 0,
+				"initial-asset-volume": 50,
+				"initial-cash-amount": 15000,    "NOTE":"300x50"
+			}
+		}
+	},
+	"arbitrage-market": {
+		"max-intrusion-count": 10,
+		"default": {
+			"#agents": 100,
+			"agent": {
+				"order-making": "Mid",    "NOTE":"Mid or BidAsk",
+				"initial-asset-volume": 50,    "NOTE":"per market",
+				"initial-cash-amount": 15000,    "NOTE":"per market",
+				"order-min-volume": 1,
+				"order-threshold-price": 1.0
+			},
+			"#init-agents": 0,
+			"init-agent": {
+				"order-making": "Mid",    "NOTE":"Mid or BidAsk",
+				"initial-asset-volume": 50,    "NOTE":"per market",
+				"initial-cash-amount": 15000,    "NOTE":"per market",
+				"order-min-volume": 1,
+				"order-threshold-price": 0.0
+			}
+		}
+	},
+	"market-attacks": {
+		"0": {
+			"class": "FundamentalPriceAttack",
+			"target": {"class": "spot-market", "id": 0},
+			"time": 0,
+			"price-impact": 0.7,
+			"enabled": true
+		},
+		"1": {
+			"class": "FundamentalPriceAttack",
+			"target": {"class": "spot-market", "id": 1},
+			"time": 0,
+			"price-impact": 0.7,
+			"enabled": true
+		},
+		"2": {
+			"class": "FundamentalPriceAttack",
+			"target": {"class": "spot-market", "id": 2},
+			"time": 0,
+			"price-impact": 0.7,
+			"enabled": true
+		}
+	},
+	"market-rules": {
+		"0": {
+			"class": "circuit-breaker",
+			"target": {"class": "spot-market", "id": 0},
+			"followers": [
+				{"class": "spot-market", "id": 0}
+			],
+			"activation-max": 1,
+			"time-length": 1.0,
+			"change-rate": 0.05,
+			"enabled": false
+		}
+	}
+}

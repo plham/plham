@@ -1,6 +1,7 @@
 package plham.agent;
 import x10.util.ArrayList;
 import x10.util.List;
+import x10.util.Random;
 import plham.Agent;
 import plham.Market;
 import plham.Order;
@@ -16,6 +17,10 @@ import plham.util.RandomHelper;
 public class RiskAverseFCNAgent extends FCNAgent {
 
 	public var riskAversionConstant:Double; // riskAverseness * (yF + 1) / (yC + 1)
+
+	public def this(id:Long, name:String, random:Random) {
+		super(id, name, random);
+	}
 
 	public def submitOrders(market:Market):List[Order] {
 

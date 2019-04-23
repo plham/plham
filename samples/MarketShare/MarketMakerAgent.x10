@@ -1,15 +1,43 @@
 package samples.MarketShare;
 import x10.util.List;
 import x10.util.ArrayList;
+import x10.util.Random;
 import plham.HighFrequencyAgent;
 import plham.Market;
 import plham.Order;
+import plham.main.Simulator;
+import plham.util.JSON;
+import plham.util.JSONRandom;
 
 public class MarketMakerAgent extends HighFrequencyAgent {
 
 	public var targetMarketId:Long;
 	public var netInterestSpread:Double;
 	public var orderTimeLength:Long;
+
+	public def this(id:Long, name:String, random:Random) = super(id, name, random);
+	public def setup(json:JSON.Value, sim:Simulator):MarketMakerAgent {
+		super.setup(json, sim);
+		val targetMarket = sim.getMarketByName(json("targetMarket"));
+		val random = new JSONRandom(this.getRandom());
+		this.targetMarketId = targetMarket.id;
+		this.netInterestSpread = random.nextRandom(json("netInterestSpread"));
+		this.orderTimeLength = random.nextRandom(json("orderTimeLength", "2")) as Long;
+		return this;
+	}
+	public static def register(sim:Simulator):void {
+		val className = "MarketMakerAgent";
+		sim.addAgentInitializer(className,
+			(
+				id:Long,
+				name:String, 
+				random:Random,
+				json:JSON.Value
+			) => {
+				return new MarketMakerAgent(id, name, random).setup(json, sim);
+			}
+		);
+	}
 
 	public def submitOrders(markets:List[Market]):List[Order] {
 		val orders = new ArrayList[Order]();

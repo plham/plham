@@ -1,9 +1,13 @@
 package samples.Option.agent;
 import x10.util.List;
 import x10.util.ArrayList;
+import x10.util.Random;
 import plham.Market;
 import plham.Order;
 import plham.Agent;
+import plham.main.Simulator;
+import plham.util.JSON;
+import plham.util.JSONRandom;
 import plham.util.RandomHelper;
 import samples.Option.OptionMarket;
 import samples.Option.OptionAgent;
@@ -15,6 +19,18 @@ import samples.Option.util.OptionMatrix;
 public class StrangleOptionAgent extends OptionAgent {
 
 	public var timeWindowSize:Long;
+
+	public def this(id:Long, name:String, random:Random) = super(id, name, random);
+	public def setup(json:JSON.Value, sim:Simulator):StrangleOptionAgent {
+		super.setup(json, sim);
+		this.timeWindowSize = new JSONRandom(this.getRandom()).nextRandom(json("timeWindowSize")) as Long;
+		return this;
+	}
+	public static def register(sim:Simulator) {
+		sim.addAgentInitializer("StrangleOptionAgent", (id:Long, name:String, random:Random, json:JSON.Value) => {
+			return new StrangleOptionAgent(id, name, random).setup(json, sim);
+		});
+	}
 
 	public def submitOrders(markets:List[Market]):List[Order] {
 		val orders = new ArrayList[Order]();

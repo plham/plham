@@ -33,7 +33,7 @@ public class Newton {
 		for (t in 1..maxiter) {
 			if (q1 == q0) {
 				if (p1 != p0) {
-					Console.ERR.println("NewtonRaphson: Tolerance of " + (p1 - p0) + " reached");
+					//Console.ERR.println("NewtonRaphson: Tolerance of " + (p1 - p0) + " reached");
 				}
 				return (p1 + p0)/2.0;
 			} else {

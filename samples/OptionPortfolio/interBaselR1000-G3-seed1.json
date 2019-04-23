@@ -1,0 +1,210 @@
+{
+	"debug": 0,
+	"numStepsOneDay": 5,
+	"numDaysOneMonth": 30,
+	"TPORT": 30, "MEMO": "For example,if this TPORT is 120, it means 120 days = 120*numStepsOneDay steps.",
+	"timeWindowSize": 200,
+	"covarfundamentalWeight": 0.5,
+	"simulation": {
+		"markets": ["UnderMarketGroup","OptionMarketGroup"],
+		"agents": ["UnderAgentGroup","OptionAgentGroup"],
+
+		"sessions": [
+			{	"sessionName": 0,
+				"iterationDays": 6000,   "MEMO": "This iterationSteps (Runner.x10) = iterationDays*numStepsOneDay should satisfy the following condition: iterationSteps >= max{ tport*numStepsOneDay*timeWindowSize, numStepsOneDay*sizeDistVaR }",
+				"withOrderPlacement": false,
+				"withOrderExecution": false,
+				"withPrint": false,
+				"isForDummyTimeseries": true,
+				"maxNormalOrders": 3
+			},
+			{	"sessionName": 1,
+				"iterationDays": 60000,   "MEMO": "This iterationSteps (Runner.x10) = (iterationDays+1)*numStepsOneDay",
+				"withOrderPlacement": true,
+				"withOrderExecution": true,
+				"withPrint": true,
+				"isForDummyTimeseries": false,
+				"maxNormalOrders": 3
+			}
+		]
+
+	},
+
+
+
+
+	"UnderAgentGroup": {
+		"class": "AgentGroup",
+		"agents": ["local","portfolio"]
+	},
+
+		"FCNMarkowitzPortfolioAgent": {
+			"class": "FCNMarkowitzPortfolioAgent",						
+			"noiseScale": 0.001,
+			"logType": true,							
+			"assetVolume": 50,					
+			"fundamentalMeanReversionTime": {"uniform": [50, 150]},
+			"fundamentalWeight": {"expon": [10.0]},		
+			"chartWeight": {"expon": [1.0]},					
+			"noiseWeight":  {"expon": [10.0]},																
+			"b": {"uniform": [0.00095, 0.00105]},			
+			"shortSellingAbility": false,	
+			"tport": 30,	"MEMO": "tportはステップ数ではなく，日数(=ステップ数でのtport/numStepsOneDay)で指定する",
+			"timeWindowSize": [80, 120],  "MEMO": "timeWindowSizeは[t, t+TPORT]間の累積リターン，ボラを取ってくるサンプル数",
+			"leverageRate": 1.0								
+		},
+
+		"portfolio": {
+			"class": "AgentGroup",
+			"agents": ["normalPortfolio","baselPortfolio"]
+		},
+
+			"normalPortfolio": {
+				"extends": "FCNMarkowitzPortfolioAgent",
+				"cashAmount": 45000.0,
+				"numAgents": 0,
+				"accessibleMarkets": ["market-1","market-2","market-3"]
+			},
+	
+			"baselPortfolio": {
+				"class": "FCNBaselMarkowitzPortfolioAgent",
+				"extends": "FCNMarkowitzPortfolioAgent",									
+				"numAgents": 0,
+				"cashAmount": 45000.0,					
+				"distanceType": "Manhattan",	"MEMO": "we can use Manhattan or Chebyshev",
+				"riskType": "VaR",	"MEMO": "we can use VaR or ES",								
+				"confInterval": 0.99,
+				"numDaysVaR": 10, "MEMO": "バーゼル2,3どちらも10日の保有期間",
+				"sizeDistVaR": 250, "MEMO": "どちらも250日の観察期間で.バーゼル2は99%のVaR，バーゼル3は97.5%のES",
+				"coMarketRisk": 125.0,	"MEMO": "usually 12.5. b, we set 12.5*10 =125.0, because total Capital is equal to owned capital.",
+				"threshold": 0.08,	"MEMO": "usually 0.08, 0.08*125.0 = 10.0 =< owned capital /risk asset",
+				"isLimitVariable": true,
+				"underLimitPriceRate": 0.5,
+				"overLimitPriceRate": 1.5,
+				"underLimitPrice": 200,
+				"overLimitPrice": 600,
+				"accessibleMarkets": ["market-1","market-2","market-3"]
+			},
+
+
+
+
+
+
+		"local": {
+			"class": "AgentGroup",
+			"agents": ["normalLocal","baselLocal"]
+		},
+
+
+			"normalLocal": {
+				"class": "AgentGroup",
+				"agents": ["normalLocal1","normalLocal2","normalLocal3"]
+			},
+
+				"normalLocalAgent": { "extends": "FCNMarkowitzPortfolioAgent", "cashAmount": 15000.0, "numAgents": 1000 },
+	
+				"normalLocal1": { "extends" : "normalLocalAgent", "accessibleMarkets": ["market-1" ] },  "normalLocal2": { "extends" : "normalLocalAgent", "accessibleMarkets": ["market-2" ] },  "normalLocal3": { "extends" : "normalLocalAgent", "accessibleMarkets": ["market-3" ] },
+
+			"baselLocal": {
+				"class": "AgentGroup",
+				"agents": ["baselLocal1","baselLocal2","baselLocal3"]
+			},
+
+				"baselLocalAgent": { 
+					"class": "FCNBaselMarkowitzPortfolioAgent",
+	
+					"extends": "FCNMarkowitzPortfolioAgent", 
+
+					"numAgents": 0,
+
+					"cashAmount": 15000.0,
+
+					"distanceType": "Manhattan",
+
+					"riskType": "VaR",
+	
+					"confInterval": 0.99,
+
+					"numDaysVaR": 10,
+
+					"sizeDistVaR": 250,
+
+					"coMarketRisk": 125.0,
+
+					"threshold": 0.08,
+
+					"isLimitVariable": true,
+
+					"underLimitPriceRate": 0.5,
+
+					"overLimitPriceRate": 1.5,
+
+					"underLimitPrice": 200,
+
+					"overLimitPrice": 600
+				},
+
+				"baselLocal1": { "extends" : "baselLocalAgent", "accessibleMarkets": ["market-1" ] },  "baselLocal2": { "extends" : "baselLocalAgent", "accessibleMarkets": ["market-2" ] },  "baselLocal3": { "extends" : "baselLocalAgent", "accessibleMarkets": ["market-3" ] },
+
+	"OptionAgentGroup": {
+		"class": "AgentGroup",
+		"agents": ["FCNOptionAgent1","FCNOptionAgent2","FCNOptionAgent3"]
+	},
+
+		"OptionAgent": {
+			"numAgents": 1000,
+			"MEMO": "Agent class",
+			"assetVolume": [-10, 10],
+			"cashAmount": 10,		
+			"MEMO": "Any OptionAgent class",
+			"timeWindowSize": [20, 30]
+		},
+
+		"FCNOptionAgent": {
+			"extends": "OptionAgent",
+			"class": "FCNOptionAgent",
+			"fundamentalWeight": [0.1, 1.0],
+			"chartWeight": [0.1, 1.0],
+			"noiseWeight": [0.1, 1.0],
+			"alpha": {"normal": [0.957, 0.023]},
+			"betaPos": {"normal": [-0.242, 0.101]},
+			"betaNeg": {"normal": [+0.240, 0.075]},
+			"sigma": 0.01,
+			"numSamples": 20
+		},
+
+		"FCNOptionAgent1": { "extends" : "FCNOptionAgent", "markets": ["market-1", "OptionMarketCluster1" ] },  "FCNOptionAgent2": { "extends" : "FCNOptionAgent", "markets": ["market-2", "OptionMarketCluster2" ] },  "FCNOptionAgent3": { "extends" : "FCNOptionAgent", "markets": ["market-3", "OptionMarketCluster3" ] },
+
+
+	"UnderMarketGroup": {
+		"class": "MarketGroup",
+		"markets": ["market-1","market-2","market-3"]
+	},
+
+		"class-Market": {
+			"class": "Market",
+			"marketPrice": 400.0,
+			"fundamentalVolatility": 0.0005,
+			"outstandingShares": 1000		
+		},
+
+		"market-1": { "extends": "class-Market" },  "market-2": { "extends": "class-Market" },  "market-3": { "extends": "class-Market" },
+
+
+	"OptionMarketGroup": {
+		"class": "MarketGroup",
+		"markets": ["OptionMarketCluster1","OptionMarketCluster2","OptionMarketCluster3"]
+	},
+
+		"OptionMarketCluster": {
+			"class": "OptionMarketCluster",	
+			"strikePrices": [350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450],
+			"maturityTimes": [400],
+			"marketPrice": 10.0,
+			"outstandingShares": 1
+		},
+
+		"OptionMarketCluster1": { "extends" : "OptionMarketCluster", "markets": ["market-1" ] },  "OptionMarketCluster2": { "extends" : "OptionMarketCluster", "markets": ["market-2" ] },  "OptionMarketCluster3": { "extends" : "OptionMarketCluster", "markets": ["market-3" ] }
+	
+}

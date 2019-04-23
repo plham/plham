@@ -1,9 +1,27 @@
 package samples.DarkPool;
 import x10.util.List;
+import x10.util.Random;
 import plham.Market;
 import plham.Order;
+import plham.main.Simulator;
+import plham.util.JSON;
 
 public class DarkPoolMarket extends Market {
+
+	public def this(id:Long, name:String, random:Random) = super(id, name, random);
+	public def setup(json:JSON.Value, sim:Simulator):DarkPoolMarket {
+		assert json("markets").size() == 1;
+		super.setup(json, sim);
+		val lit = sim.getMarketByName(json("markets")(0));
+		this.setLitMarket(lit);
+		return this;
+	}
+	public static def register(sim:Simulator):void {
+		val className = "DarkPoolMarket";
+		sim.addMarketInitializer(className, (id:Long, name:String, random:Random, json:JSON.Value) => {
+			return new DarkPoolMarket(id, name, random).setup(json, sim);
+		});
+	}
 
 	public var litMarketId:Long;
 

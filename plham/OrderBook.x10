@@ -5,6 +5,7 @@ import x10.util.HashSet;
 import x10.util.Set;
 import x10.util.Pair;
 import x10.util.StringUtil;
+import plham.agent.TestAgent;
 import cassia.util.HeapQueue;
 import cassia.util.SortedQueue;
 
@@ -218,14 +219,15 @@ public class OrderBook {
 	}
 
 	public static def main(Rail[String]) {
-		val agent = new Agent(0);
+		val agent = new TestAgent(0);
 		val market = new Market(0);
 		val book = new OrderBook(HIGHERS_FIRST);
-		book.add(new Order(Order.KIND_BUY_LIMIT_ORDER, agent.id, market.id, 100.0, 10, 30, 1));
-		book.add(new Order(Order.KIND_BUY_LIMIT_ORDER, agent.id, market.id, 50.0, 10, 30, 2));
-		book.add(new Order(Order.KIND_BUY_LIMIT_ORDER, agent.id, market.id, 50.0, 40, 30, 3));
-		book.add(new Order(Order.KIND_BUY_LIMIT_ORDER, agent.id, market.id, 100.0, 10, 30, 4));
-		book.add(new Order(Order.KIND_BUY_LIMIT_ORDER, agent.id, market.id, 70.0, 10, 30, 4));
+		val agentId = agent.id;
+		book.add(new Order(Order.KIND_BUY_LIMIT_ORDER, agentId, market.id, 100.0, 10, 30, 1));
+		book.add(new Order(Order.KIND_BUY_LIMIT_ORDER, agentId, market.id, 50.0, 10, 30, 2));
+		book.add(new Order(Order.KIND_BUY_LIMIT_ORDER, agentId, market.id, 50.0, 40, 30, 3));
+		book.add(new Order(Order.KIND_BUY_LIMIT_ORDER, agentId, market.id, 100.0, 10, 30, 4));
+		book.add(new Order(Order.KIND_BUY_LIMIT_ORDER, agentId, market.id, 70.0, 10, 30, 4));
 
 		Console.OUT.println("THE BEST: " + book.getBestOrder());
 

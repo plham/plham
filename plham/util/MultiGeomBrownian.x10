@@ -21,11 +21,11 @@ public class MultiGeomBrownian {
 	public var dim:Long;
 	public var chol:Rail[Rail[Double]];
 	public var state:Rail[Double];
-
+	public var logType:boolean; 
 	public var g:Rail[Double];
 	public var c:Rail[Double];
-
-	public def this(random:Random, s0:Rail[Double], mu:Rail[Double], sigma:Rail[Double], cor:Rail[Rail[Double]], dt:Double) {
+	public var initialCheck:Boolean;
+	public def this(random:Random, s0:Rail[Double], mu:Rail[Double], sigma:Rail[Double], cor:Rail[Rail[Double]], dt:Double, logType:boolean) {
 		this.random = random;
 		this.gaussian = new Gaussian(random);
 		this.s0 = s0;
@@ -36,10 +36,10 @@ public class MultiGeomBrownian {
 		this.dt = dt;
 		this.dim = mu.size;
 		this.state = new Rail[Double](dim);
-
+		this.initialCheck = true;
 		this.g = new Rail[Double](dim);
 		this.c = new Rail[Double](dim);
-
+		this.logType = logType;
 		val dim = this.dim;
 		assert dim == s0.size;
 		assert dim == mu.size;
@@ -50,9 +50,14 @@ public class MultiGeomBrownian {
 				assert chol(j)(i) == 0.0;
 			}
 		}
+		//Console.OUT.println("testConst:"+this.logType);
 	}
 
 	public def this(random:Random, dim:Long) {
+		this(random, dim, true);
+	}
+
+	public def this(random:Random, dim:Long, logType:boolean) {
 		this.random = random;
 		this.gaussian = new Gaussian(random);
 		this.mu = new Rail[Double](dim);
@@ -63,12 +68,26 @@ public class MultiGeomBrownian {
 		this.dt = 1.0;
 		this.dim = dim;
 		this.state = new Rail[Double](dim);
-
+		this.initialCheck = true;
 		this.g = new Rail[Double](dim);
 		this.c = new Rail[Double](dim);
+		this.logType = logType;
+		//Console.OUT.println("testConst:"+this.logType);
 	}
 
 	public def nextBrownian():Rail[Double] {
+		var out:Rail[Double] = new Rail[Double]();
+		if(this.logType){
+			//Console.OUT.println("trueLog");
+			out = nextBrownian2();
+		}else{
+			//Console.OUT.println("falseLog");
+			out = nextBrownian3();
+		}
+		return out;
+	}
+
+	public def nextBrownian2():Rail[Double] {
 		if (this.chol == null) {
 			this.chol = Cholesky.decompose(this.cor);
 		}
@@ -83,9 +102,40 @@ public class MultiGeomBrownian {
 			}
 		}
 		for (i in 0..(dim - 1)) {
-			//this.state(i) += this.mu(i) * this.dt + this.sigma(i) * this.c(i) * Math.sqrt(dt);
-			this.state(i) += (this.mu(i) - this.sigma(i) * this.sigma(i) * 0.5) * this.dt + this.sigma(i) * this.c(i) * Math.sqrt(dt);
+			//this.state(i) += this.mu(i) * this.dt + this.sigma(i) * this.c(i) * dt * dt;
+			this.state(i) += (this.mu(i) - sigma(i) * sigma(i) * 0.5) * this.dt + this.sigma(i) * this.c(i) * Math.sqrt(dt);
 			this.g(i) = this.s0(i) * Math.exp(this.state(i));
+		}
+		return this.g;
+	}
+
+	public def nextBrownian3():Rail[Double] {
+		val dim = this.dim;
+		if(this.initialCheck){
+			for (i in 0..(dim - 1)) {
+				this.g(i) = this.s0(i);
+			}
+			this.initialCheck = false;
+		}
+
+		if (this.chol == null) {
+			this.chol = Cholesky.decompose(this.cor);
+		}
+
+		val hoge = new Rail[Double](dim);
+		for (i in 0..(dim - 1)) {
+			hoge(i) = gaussian.nextGaussian() ;
+		}
+		for (i in 0..(dim - 1)) {
+			this.c(i) = 0.0;
+			for (j in 0..i) {
+				this.c(i) += hoge(j) * this.chol(i)(j);
+			}
+		}
+		for (i in 0..(dim - 1)) {
+			//this.state(i) = this.mu(i) * this.dt + this.sigma(i) * this.c(i) * dt * dt;
+			this.state(i) = (this.mu(i) - sigma(i) * sigma(i) * 0.5) * this.dt + this.sigma(i) * this.c(i) * Math.sqrt(dt);
+			this.g(i) = this.g(i)*( 1+this.state(i) );
 		}
 		return this.g;
 	}
@@ -115,12 +165,12 @@ public class MultiGeomBrownian {
 //		}
 		val dt = 1.0;
 
-
+		val logType =true;
 		val random = new Random(); // MEMO: main()
-		val mgbm = new MultiGeomBrownian(random, s0, mu, sigma, cor, dt);
+		val mgbm = new MultiGeomBrownian(random, s0, mu, sigma, cor, dt,logType);
 		Console.OUT.println("Cholesky\n" + mgbm.chol);
 
-		for (t in 0..100000) {
+		for (t in 0..1000) {
 			val X = mgbm.nextBrownian();
 			for (x in X) {
 				Console.OUT.print(x + " ");

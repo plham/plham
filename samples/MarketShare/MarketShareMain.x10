@@ -15,7 +15,10 @@ import plham.main.SequentialRunner;
 public class MarketShareMain extends CI2002Main {
 
 	public static def main(args:Rail[String]) {
-		new SequentialRunner(new MarketShareMain()).run(args);
+		val sim = new MarketShareMain();
+		MarketMakerAgent.register(sim);
+		MarketShareFCNAgent.register(sim);
+		new SequentialRunner(sim).run(args);
 	}
 
 	public def print(sessionName:String) {
@@ -35,46 +38,4 @@ public class MarketShareMain extends CI2002Main {
 		}
 	}
 
-	public def createAgents(json:JSON.Value):List[Agent] {
-		val random = new JSONRandom(getRandom());
-		val agents = super.createAgents(json); // Use FCNAgent defined in CI2002Main.
-		if (json("class").equals("MarketShareFCNAgent")) {
-			val numAgents = json("numAgents").toLong();
-			for (i in 0..(numAgents - 1)) {
-				val agent = new MarketShareFCNAgent();
-				setupMarketShareFCNAgent(agent, json, random);
-				agents.add(agent);
-			}
-			Console.OUT.println("# " + json("class").toString() + " : " + JSON.dump(json));
-		}
-		if (json("class").equals("MarketMakerAgent")) {
-			val numAgents = json("numAgents").toLong();
-			for (i in 0..(numAgents - 1)) {
-				val agent = new MarketMakerAgent();
-				setupMarketMakerAgent(agent, json, random);
-				agents.add(agent);
-			}
-			Console.OUT.println("# " + json("class").toString() + " : " + JSON.dump(json));
-		}
-		return agents;
-	}
-
-	public def setupMarketShareFCNAgent(agent:MarketShareFCNAgent, json:JSON.Value, random:JSONRandom) {
-		setupFCNAgent(agent, json, random); // Nothing new
-	}
-
-	public def setupMarketMakerAgent(agent:MarketMakerAgent, json:JSON.Value, random:JSONRandom) {
-		setupAgent(agent, json, random);
-
-		val targetMarket = getMarketByName(json("targetMarket"));
-		agent.targetMarketId = targetMarket.id;
-		agent.netInterestSpread = random.nextRandom(json("netInterestSpread"));
-		agent.orderTimeLength = random.nextRandom(json("orderTimeLength", "2")) as Long;
-	}
-
-	// Defined in CI2002Main.
-	public def setupMarket(market:Market, json:JSON.Value, random:JSONRandom) {
-		super.setupMarket(market, json, random);
-		market.setTradeVolume(0, random.nextRandom(json("tradeVolume")) as Long);
-	}
 }

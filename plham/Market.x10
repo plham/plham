@@ -1,8 +1,15 @@
 package plham;
+import x10.compiler.NonEscaping;
 import x10.util.ArrayList;
+import x10.util.Container;
+import x10.util.Indexed;
 import x10.util.List;
+import x10.util.NoSuchElementException;
 import x10.util.Random;
+import plham.main.Simulator;
 import plham.util.Itayose;
+import plham.util.JSON;
+import plham.util.JSONRandom;
 
 /**
  * The base class for markets.
@@ -27,24 +34,14 @@ import plham.util.Itayose;
 public class Market {
 	
 	/** The id of this market assigned by the system. DON'T CHANGE IT. */
-	public var id:Long;
+	public val id:Long;
 	/** The JSON object name. DON'T CHANGE IT. */
-	public var name:String;
+	public val name:String;
 	/** The RNG given by the system (DON'T CHANGE IT). */
-	public var random:Random;
-
-	/** For system use only. */
-	public def setId(id:Long) = this.id = id;
-
-	/** For system use only. */
-	public def setName(name:String) = this.name = name;
+	private val random:Random;
 
 	/** @return An instance of Random (derived from the root). */
 	public def getRandom():Random = this.random;
-
-	/** For system use only. */
-	public def setRandom(random:Random):Random = this.random = random;
-
 
 	public var _isRunning:Boolean;
 	public var buyOrderBook:OrderBook;
@@ -52,19 +49,27 @@ public class Market {
 	public var outstandingShares:Long;
 
 	/** NOTE: Use <code>getTime()</code> instead. */
-	public var time:Time;
+	private var time:Time;
 //	public var tick:Long;
 
+	/** Reference to a Env object (actually be a Simulator object in all cases), which represents the simulation environment. */
 	public transient var env:Env;
 
+	/**
+	 * Market's tick size, the minimum unit of the price.
+	 *
+	 * Negative <code>tickSize</code> means that market has no tick size restriction.
+	 */
 	public var tickSize:Double; // E.g. 0.0001;  "tickSize <= 0.0" means no tick size.
 	public val NO_TICKSIZE = -1.0;
-	public static ROUND_UPPER = (price:Double, tickSize:Double) => (Math.ceil(price / tickSize)) * tickSize;
-	public static ROUND_LOWER = (price:Double, tickSize:Double) => (Math.floor(price / tickSize)) * tickSize;
+	private static ROUND_UPPER = (price:Double, tickSize:Double) => (Math.ceil(price / tickSize)) * tickSize;
+	private static ROUND_LOWER = (price:Double, tickSize:Double) => (Math.floor(price / tickSize)) * tickSize;
 
 	//// Historical data (public) ////
-	public var marketPrices:List[Double];
-	public var fundamentalPrices:List[Double];
+	public var marketPrices:ArrayList[Double];
+	public var fundamentalPrices:ArrayList[Double];
+
+	public var fundamentalVolatility:Double;
 
 	//// Historical data (hidden) ////
 	public transient var lastExecutedPrices:List[Double];
@@ -85,7 +90,10 @@ public class Market {
 		public var exchangeVolume:Long;
 	}
 
-	public def this(id:Long) {
+	public def this(id:Long, name:String, random:Random) {
+		this.id = id;
+		this.name = name;
+		this.random = random;
 		this._isRunning = true;
 		this.buyOrderBook = new OrderBook(OrderBook.HIGHERS_FIRST);
 		this.sellOrderBook = new OrderBook(OrderBook.LOWERS_FIRST);
@@ -106,10 +114,38 @@ public class Market {
 		this.buyOrdersCounts = new ArrayList[Long]();
 		this.sellOrdersCounts = new ArrayList[Long]();
 		this.executedOrdersCounts = new ArrayList[Long]();
+		this.fundamentalVolatility = 0.0;
 	}
 
+	public def this(id:Long) {
+		this(id, "default", new Random());
+	}
 	public def this() {
-		this(-1);
+		this(-1, "default", new Random());
+	}
+
+	public def setup(json:JSON.Value, sim:Simulator):Market {
+		val jsonrandom = new JSONRandom(getRandom());
+		setTickSize(jsonrandom.nextRandom(json("tickSize", "-1.0"))); // " tick-size <= 0.0 means no tick size.
+		setInitialMarketPrice(jsonrandom.nextRandom(json("marketPrice")));
+		setInitialFundamentalPrice(jsonrandom.nextRandom(json("marketPrice")));
+		setFundamentalVolatility(jsonrandom.nextRandom(json("fundamentalVolatility", "0.0")));
+		setOutstandingShares(jsonrandom.nextRandom(json("outstandingShares")) as Long);
+		return this;
+	}
+
+	public static def register(sim:Simulator):void {
+		val className = "Market";
+		sim.addMarketsInitializer(className, (id:Long, name:String, random:Random, json:JSON.Value) => {
+			val numMarkets = json.has("numMarkets") ? json("numMarkets").toLong() : 1;
+			val markets = new ArrayList[Market](numMarkets) as List[Market];
+			markets.add(new Market(id, name, random).setup(json, sim));
+			sim.GLOBAL(markets(0).name) = markets as Any; // assuming 'numMarkets' is always set to 1.
+			//TODO TKhack
+			val r = new ArrayList[LongRange](); r.add(id..id);
+			sim.marketName2Ranges(name)=r;
+			return markets;
+		});
 	}
 
 	/**
@@ -119,7 +155,7 @@ public class Market {
 	 * The primary task, order matching, should be done in <code>handleOrder(Order)</code>.
 	 * @param orders  a list of orders.
 	 */
-	public def handleOrders(orders:List[Order]) {
+	public def handleOrders(orders:Container[Order]) {
 		for (order in orders) {
 			if (order.marketId == this.id) {
 				this.handleOrder(order);
@@ -154,7 +190,6 @@ public class Market {
 			}
 			return;
 		}
-
 		if (order.isBuyOrder()) {
 			this.handleBuyOrder(order);
 			this.buyOrdersCounts(t) += 1;
@@ -331,7 +366,8 @@ public class Market {
 	 */
 	public def isRunning():Boolean = this._isRunning;
 	
-	public def setRunning(isRunning:Boolean) = this._isRunning = isRunning;
+	@NonEscaping
+	public final def setRunning(isRunning:Boolean) = this._isRunning = isRunning;
 
 	/**
 	 * See also <code>roundPrice()</code>.
@@ -341,7 +377,8 @@ public class Market {
 	/**
 	 * Note: <code>tickSize &lt;= 0.0</code> means no tick size.
 	 */
-	public def setTickSize(tickSize:Double) = this.tickSize = tickSize;
+	@NonEscaping
+	public final def setTickSize(tickSize:Double) = this.tickSize = tickSize;
 
 	/**
 	 * Round the price of the order in increments of a tick size.
@@ -418,7 +455,6 @@ public class Market {
 		assert !price.isNaN() : "!price.isNaN()";
 		assert price >= 0.0 : "price >= 0.0";
 		this.marketPrices.add(price);
-		this.fundamentalPrices.add(this.fundamentalPrices.getLast()); // Assume constant by default
 		// FIXME: The below should not come here.
 		this.buyOrdersCounts.add(0);
 		this.sellOrdersCounts.add(0);
@@ -432,11 +468,33 @@ public class Market {
 	public def updateFundamentalPrice(price:Double) {
 		assert !price.isNaN() : "!price.isNaN()";
 		assert price >= 0.0 : "price >= 0.0";
-		val t = this.fundamentalPrices.size() - 1;
-		this.fundamentalPrices(t) = price;
+		this.fundamentalPrices.add(price);
 	}
+
+	/**
+	 * This is for system use.
+	 * This method can be used when the next fundamental price is set(by calling updateFundamentalPrice), but time is not updated yes.
+	 */
+	public def getNextFundamentalPrice() {
+		assert this.getTime() == this.fundamentalPrices.size() - 1;
+		return this.fundamentalPrices.getLast();
+	}
+
 	
-	public def setInitialMarketPrice(price:Double) {
+	public final def getInitialMarketPrice():Double {
+		if (this.marketPrices.size() == 0) throw new NoSuchElementException();
+		return this.marketPrices(0);
+	}
+
+	public final def getFundamentalVolatility():Double = this.fundamentalVolatility;
+
+	@NonEscaping
+	public final def setFundamentalVolatility(v:Double) {
+		this.fundamentalVolatility = v;
+	}
+
+	@NonEscaping
+	public final def setInitialMarketPrice(price:Double) {
 		assert this.marketPrices.size() == 0;
 		this.marketPrices.add(price); // t = 0
 		this.fundamentalPrices.add(price); // t = 0
@@ -449,8 +507,14 @@ public class Market {
 		this.executionLogs.add(new ArrayList[ExecutionLog]());
 		this.agentUpdates.add(new ArrayList[AgentUpdate]());
 	}
+
+	public final def getInitialFundamentalPrice():Double {
+		if (this.fundamentalPrices.size() == 0) throw new NoSuchElementException();
+		return this.fundamentalPrices(0);
+	}
 	
-	public def setInitialFundamentalPrice(price:Double) {
+	@NonEscaping
+	public final def setInitialFundamentalPrice(price:Double) {
 		this.fundamentalPrices(0) = price;
 	}
 	
@@ -487,7 +551,8 @@ public class Market {
 
 	public def getOutstandingShares():Long = this.outstandingShares;
 
-	public def setOutstandingShares(outstandingShares:Long) = this.outstandingShares = outstandingShares;
+	@NonEscaping
+	public final def setOutstandingShares(outstandingShares:Long) = this.outstandingShares = outstandingShares;
 
 	public def getTime() = this.time.t;
 
@@ -600,27 +665,26 @@ public class Market {
 
 		public def isBuySide():Boolean = this.assetVolumeDelta > 0;
 		public def isSellSide():Boolean = this.assetVolumeDelta < 0;
+		public def toString():String = "[Update agentId:"+agentId+", marketId:"+marketId+", orderId"+orderId+", price:"+price+", cashAmountDelta"+cashAmountDelta+", assetVolumeDelta"+assetVolumeDelta+"]";
 	}
 
 	public transient var agentUpdates:List[List[AgentUpdate]] = new ArrayList[List[AgentUpdate]]();
 
 	public def handleAgentUpdate(update:AgentUpdate) {
 		val t = this.getTime();
-		if (this.env.agents(update.agentId) != null) {
-			this.executeAgentUpdate(this.env.agents, update); // Process
-		} else {
-			this.agentUpdates(t).add(update); // Keep
+		// Console.OUT.println("DBGM update@"+t+", update:"+update);
+		try {
+		    this.executeAgentUpdate(this.env.agents, update); // Process
+		} catch (e:IndexOutOfBoundsException) {
+		    this.agentUpdates(t).add(update); // Keep
 		}
 	}
-
-	public def executeAgentUpdate(agents:List[Agent], update:AgentUpdate) {
+    
+	public def executeAgentUpdate(agents:Indexed[Agent], update:AgentUpdate) {
 		val id = update.agentId;
 		val agent = agents(id);
 		if (agent != null) {
-			//Console.OUT.println(["Market#executeAgentUpdate", this.id, this, update.agentId, here]);
-			agent.updateCashAmount(update.cashAmountDelta);
-			agent.updateAssetVolume(this, update.assetVolumeDelta);
-			agent.orderExecuted(this, update.orderId, update.price, update.cashAmountDelta, update.assetVolumeDelta);
+		    agent.executeUpdate(update);
 		}
 	}
 

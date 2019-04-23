@@ -1,15 +1,25 @@
 package plham.event;
 import plham.Market;
 import plham.Order;
+import plham.main.Simulator;
+import plham.util.JSON;
+
+import x10.util.Random;
 
 public class PriceLimitRule implements Market.OrderEvent {
 
+	public val id:Long;
+	public val name:String;
+	public val random:Random;
 	public var referenceMarketId:Long;
 	public var referencePrice:Double;
 	public var triggerChangeRate:Double;
 	public var activationCount:Long;
 
-	public def this() {
+	public def this(id:Long, name:String, random:Random) {
+		this.id = id;
+		this.name = name;
+		this.random = random;
 //		this.referenceMarketId = market.id;
 //		this.referencePrice = referencePrice;
 //		this.triggerChangeRate = triggerChangeRate;
@@ -43,5 +53,21 @@ public class PriceLimitRule implements Market.OrderEvent {
 				this.activationCount++;
 			}
 		}
+	}
+
+	public static def register(sim:Simulator):void {
+		val name = "PriceLimitRule";
+		sim.addEventInitializer(name, (id:Long, name:String, random:Random, json:JSON.Value)=>{
+			return new PriceLimitRule(id, name, random).setup(json, sim);
+		});
+	}
+
+	public def setup(json:JSON.Value, sim:Simulator):PriceLimitRule {
+		val referenceMarket = sim.getMarketByName(json("referenceMarket"));
+		this.referenceMarketId = referenceMarket.id;
+		this.referencePrice = referenceMarket.getPrice();
+		this.triggerChangeRate = json("triggerChangeRate").toDouble();
+		referenceMarket.addBeforeOrderHandlingEvent(this);
+		return this;
 	}
 }

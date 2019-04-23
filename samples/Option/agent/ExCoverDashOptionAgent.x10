@@ -6,6 +6,9 @@ import x10.util.Random;
 import plham.Agent;
 import plham.Market;
 import plham.Order;
+import plham.main.Simulator;
+import plham.util.JSON;
+import plham.util.JSONRandom;
 import plham.util.RandomHelper;
 import plham.util.Statistics;
 import samples.Option.OptionAgent;
@@ -18,6 +21,22 @@ import samples.Option.OptionMarket;
 public class ExCoverDashOptionAgent extends DeltaHedgeOptionAgent {
 
 	public var stepSize:Long = 1; // One day
+
+	public def this(id:Long, name:String, random:Random) = super(id, name, random);
+	public def setup(json:JSON.Value, sim:Simulator):ExCoverDashOptionAgent {
+		super.setup(json, sim);
+		val random = new JSONRandom(this.getRandom());
+		this.timeWindowSize = random.nextRandom(json("timeWindowSize")) as Long;
+		this.hedgeBaselineVolume = random.nextRandom(json("hedgeBaselineVolume")) as Long;
+		this.hedgeDeltaThreshold = random.nextRandom(json("hedgeDeltaThreshold")) as Long;
+		this.stepSize = random.nextRandom(json("stepSize")) as Long;
+		return this;
+	}
+	public static def register(sim:Simulator) {
+		sim.addAgentInitializer("ExCoverDashOptionAgent", (id:Long, name:String, random:Random, json:JSON.Value) => {
+			return new ExCoverDashOptionAgent(id, name, random).setup(json, sim);
+		});
+	}
 
 	public def isInTheMoneyOption(option:OptionMarket):Boolean {
 		val underlying = option.getUnderlyingMarket();

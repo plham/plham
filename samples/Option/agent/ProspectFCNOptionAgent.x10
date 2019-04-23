@@ -6,6 +6,9 @@ import x10.util.Random;
 import plham.Agent;
 import plham.Market;
 import plham.Order;
+import plham.main.Simulator;
+import plham.util.JSON;
+import plham.util.JSONRandom;
 import plham.util.RandomHelper;
 import plham.util.Statistics;
 import plham.util.Newton;
@@ -23,6 +26,21 @@ public class ProspectFCNOptionAgent extends FCNOptionAgent {
 	/** The probability of loss; Set to chance level.  It is better if empirically estimated. */
 	public var lossProbability:Double = 0.5;
 
+	public def this(id:Long, name:String, random:Random) = super(id, name, random);
+	public def setup(json:JSON.Value, sim:Simulator) {
+		super.setup(json, sim);
+		val random = new JSONRandom(this.getRandom());
+		this.probabilityWeight = random.nextRandom(json("probabilityWeight", "0.91"));
+		this.riskSensitivity = random.nextRandom(json("riskSensitivity", "0.00055"));
+		this.lossAversion = random.nextRandom(json("lossAversion", "2.3"));
+		this.lossProbability = random.nextRandom(json("lossProbability", "0.5"));
+		return this;
+	}
+	public static def register(sim:Simulator) {
+		sim.addAgentInitializer("ProspectFCNOptionAgent", (id:Long, name:String, random:Random, json:JSON.Value) => {
+			return new ProspectFCNOptionAgent(id, name, random).setup(json, sim);
+		});
+	}
 	public def submitOrders(markets:List[Market]):List[Order] {
 		val orders = new ArrayList[Order]();
 

@@ -15,7 +15,10 @@ import plham.main.SequentialRunner;
 public class DarkPoolMain extends CI2002Main {
 
 	public static def main(args:Rail[String]) {
-		new SequentialRunner(new DarkPoolMain()).run(args);
+		val sim = new DarkPoolMain();
+		DarkPoolFCNAgent.register(sim);
+		DarkPoolMarket.register(sim);
+		new SequentialRunner(sim).run(args);
 	}
 
 	public def print(sessionName:String) {
@@ -46,45 +49,5 @@ public class DarkPoolMain extends CI2002Main {
 				market.getTradeVolume(),
 				"", ""], " ", "", Int.MAX_VALUE));
 		}
-	}
-
-	public def createAgents(json:JSON.Value):List[Agent] {
-		val random = new JSONRandom(getRandom());
-		val agents = super.createAgents(json); // Use FCNAgent defined in CI2002Main.
-		if (json("class").equals("DarkPoolFCNAgent")) {
-			val numAgents = json("numAgents").toLong();
-			for (i in 0..(numAgents - 1)) {
-				val agent = new DarkPoolFCNAgent();
-				setupDarkPoolFCNAgent(agent, json, random);
-				agents.add(agent);
-			}
-			Console.OUT.println("# " + json("class").toString() + " : " + JSON.dump(json));
-		}
-		return agents;
-	}
-
-	public def createMarkets(json:JSON.Value):List[Market] {
-		val random = new JSONRandom(getRandom());
-		val markets = super.createMarkets(json); // Use Market defined in CI2002Main.
-		if (json("class").equals("DarkPoolMarket")) {
-			val market = new DarkPoolMarket();
-			setupDarkPoolMarket(market, json, random);
-			markets.add(market);
-
-			Console.OUT.println("# " + json("class").toString() + " : " + JSON.dump(json));
-		}
-		return markets;
-	}
-
-	public def setupDarkPoolFCNAgent(agent:DarkPoolFCNAgent, json:JSON.Value, random:JSONRandom) {
-		setupFCNAgent(agent, json, random);
-		agent.darkPoolChance = random.nextRandom(json("darkPoolChance"));
-	}
-
-	public def setupDarkPoolMarket(market:DarkPoolMarket, json:JSON.Value, random:JSONRandom) {
-		setupMarket(market, json, random);
-		assert json("markets").size() == 1;
-		val lit = getMarketByName(json("markets")(0));
-		market.setLitMarket(lit);
 	}
 }

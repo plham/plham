@@ -1,0 +1,66 @@
+{
+	"market-update": 5,
+	"debug": 0,
+	"numStepsOneDay": 5,
+	"numDaysOneMonth": 30,
+	"TPORT": 30, "MEMO": "For example,if this TPORT is 120, it means 120 days = 120*numStepsOneDay steps.",
+	"timeWindowSize": 200,
+	"covarfundamentalWeight": 0.5,
+	"simulation": {
+		"markets": ["market-1"],
+		"agents": ["agents-1","agents-2"],
+		"sessions": [
+			{	"sessionName": 0,
+				"iterationDays": 200,
+				"withOrderPlacement": true,
+				"withOrderExecution": false,
+				"withPrint": false,
+				"isForDummyTimeseries": true,
+				"maxNormalOrders": 1
+			},
+			{	"sessionName": 1,
+				"iterationDays": 60000,
+				"withOrderPlacement": true,
+				"withOrderExecution": true,
+				"withPrint": true,
+				"isForDummyTimeseries": false,
+				"maxNormalOrders": 1
+			}
+		]
+	},
+
+	"class-Market": {
+		"class": "Market",
+		"marketPrice": 400.0,
+		"fundamentalVolatility": 0.0005,
+		"outstandingShares": 1000
+	},
+
+	"market-1": {
+		"extends": "class-Market"
+	},
+
+	"FCNAgents": {
+		"class": "FCNAgent",
+		"noiseScale": 0.001,
+		"assetVolume": 50,
+		"cashAmount": 10000,
+		"fundamentalMeanReversionTime": {"uniform": [50, 150]},
+		"fundamentalWeight": {"expon": [10.0]},		
+		"chartWeight": {"expon": [1.0]},					
+		"noiseWeight":  {"expon": [10.0]},
+		"timeWindowSize": [80, 120],  "MEMO": "timeWindowSizeは[t, t+TPORT]間の累積リターン，ボラを取ってくるサンプル数",
+		"orderMargin": {"const": [0.0]},
+		"markets": ["market-1"]
+	},
+
+	"agents-1": {
+		"extends": "FCNAgents",
+		"numAgents": 1000	
+	},
+
+	"agents-2": {
+		"extends": "FCNAgents",
+		"numAgents": 0
+	}
+}

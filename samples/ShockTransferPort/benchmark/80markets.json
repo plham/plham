@@ -1,0 +1,130 @@
+{
+    "debug": 0,
+    "numStepsOneDay": 5,
+    "numDaysOneMonth": 30,
+    "TPORT": 30,
+    "MEMO": "For example,if this TPORT is 120, it means 120 days = 120*numStepsOneDay steps.",
+    "timeWindowSize": 200,
+    "covarfundamentalWeight": 0.5,
+    "simulation": {
+        "markets": [
+            "market-N"
+        ],
+        "agents": [
+            "agents-single-market",
+            "agentsM"
+        ],
+        "sessions": [
+            {
+                "sessionName": 0,
+                "iterationDays": 6000,
+                "MEMO": "This iterationSteps (Runner.x10) = iterationDays*numStepsOneDay should satisfy the following condition: iterationSteps >= max{ tport*numStepsOneDay*timeWindowSize, numStepsOneDay*sizeDistVaR }",
+                "withOrderPlacement": false,
+                "withOrderExecution": false,
+                "withPrint": false,
+                "isForDummyTimeseries": true,
+                "maxNormalOrders": 3, "MEMO":"4 or 3000",
+                "events": [
+                    "FundamentalPriceShock"
+                ]
+            },
+            {
+                "sessionName": 1,
+                "iterationDays": 6000,
+                "MEMO": "This iterationSteps (Runner.x10) = iterationDays*numStepsOneDay should satisfy the following condition: iterationSteps >= max{ tport*numStepsOneDay*timeWindowSize, numStepsOneDay*sizeDistVaR }",
+                "withOrderPlacement": true,
+                "withOrderExecution": true,
+                "withPrint": true,
+                "isForDummyTimeseries": false,
+                "maxNormalOrders": 3, "MEMO":"3 or 3000"
+            },
+            {
+                "sessionName": 2,
+                "iterationDays": 18000,
+                "MEMO": "This iterationSteps (Runner.x10) = (iterationDays+1)*numStepsOneDay",
+                "withOrderPlacement": true,
+                "withOrderExecution": true,
+                "withPrint": true,
+                "isForDummyTimeseries": false,
+                "maxNormalOrders": 3, "MEMO":"3 or 3000"
+            }
+        ]
+    },
+    "FundamentalPriceShock": {
+        "class": "FundamentalPriceShock",
+        "target": "market-1",
+        "triggerDays": 12000,
+        "MEMO": "Sign: negative for down; positive for up; zero for no change",
+        "priceChangeRate": -0.875,
+        "enabled": true
+    },
+    "fundamentalCorrelations": {
+        "logType": true
+    },
+    "class-Market": {
+        "class": "Market",
+        "marketPrice": 400.0,
+        "fundamentalVolatility": 0.000001,
+        "outstandingShares": 1000
+    },
+    "market-N": {
+        "class": "MarketGenerator",
+        "prefix": "market-",
+        "from": 1, "to": 80,
+        "base": {
+            "extends": "class-Market"
+        }
+    },
+    "FCNMarkowitzPortfolioAgent": {
+        "class": "FCNMarkowitzPortfolioAgent",
+        "noiseScale": 0.001,
+        "logType": true,
+        "assetVolume": 50,
+        "cashAmount": 15000.0,
+        "fundamentalMeanReversionTime": {
+            "uniform": [
+                50,
+                150
+            ]
+        },
+        "b": {
+            "uniform": [
+                0.00095,
+                0.00105
+            ]
+        },
+        "shortSellingAbility": false,
+        "base":[0,30],
+        "MEMO": "baseはLongに変換されて扱われる",
+        "tport": 30,
+        "MEMO": "timeWindowSizeは[t, t+TPORT]間の累積リターン，ボラを取ってくるサンプル数",
+        "timeWindowSize": [
+            80,
+            120
+        ],
+        "leverageRate": 1.0
+    },
+    "agents-base": {
+        "extends": "FCNMarkowitzPortfolioAgent",
+        "numAgents": 1000,
+        "fundamentalWeight": {"expon": [2.0]},
+        "chartWeight": {"expon": [0.5]},
+        "noiseWeight": {"expon": [1.0]}
+    },
+    "agents-single-market": {
+        "class": "AgentGeneratorForEachMarket",
+        "markets": ["market-N"],
+        "base": {
+            "extends": "agents-base"
+        }
+    },
+    "agentsM": {
+        "extends": "FCNMarkowitzPortfolioAgent",
+        "fundamentalWeight": {"expon": [2.0]},
+        "chartWeight": {"expon": [0.5]},
+        "noiseWeight": {"expon": [1.0]},
+        "numAgents": 1000,
+        "accessibleMarkets": ["market-N"]
+    }
+}
+

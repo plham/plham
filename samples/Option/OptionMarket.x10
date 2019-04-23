@@ -1,9 +1,12 @@
 package samples.Option;
-import x10.util.List;
 import x10.util.ArrayList;
+import x10.util.List;
+import x10.util.Random;
 import plham.Market;
 import plham.Agent;
 import plham.Order;
+import plham.main.Simulator;
+import plham.util.JSON;
 
 public class OptionMarket extends Market {
 
@@ -21,7 +24,23 @@ public class OptionMarket extends Market {
 	public var riskFreeRate:Double = 0.001; // From Kawakubo (2015)
 	public var dividendYield:Double = 0.0; // From Kawakubo (2015)
 
-	public def this() {
+	public def this(id:Long, name:String, random:Random) = super(id, name, random);
+	public def setup(json:JSON.Value, sim:Simulator):OptionMarket {
+		super.setup(json, sim);
+		assert json.has("kind") : "OptionMarket's config must have a string element named 'kind'";
+		this.kind = json("kind").equals("Call") ? OptionMarket.KIND_CALL_OPTION : OptionMarket.KIND_PUT_OPTION;
+		assert json.has("markets") : "OptionMarket's config must have an array element named 'markets'.";
+		val underlyingMarket = sim.getMarketByName(json("markets"));
+		this.setUnderlyingMarket(underlyingMarket);
+		this.setStrikePrice(json("strikePrice").toDouble());
+		this.setMaturityInterval(json("maturity").toLong());
+		return this;
+	}
+
+	public static def register(sim:Simulator) {
+		sim.addMarketInitializer("OptionMarket", (id:Long, name:String, random:Random, json:JSON.Value) => {
+			return new OptionMarket(id, name, random).setup(json, sim);
+		});
 	}
 
 	public def getLongName():String {
@@ -119,8 +138,8 @@ public class OptionMarket extends Market {
 		if (isPutOption()  && strikePrice > underPrice) { // Having an intrinsic value (= in the money)
 			isValuable = true;
 		}
-		Console.OUT.println("# [" + (isCallOption() ? "Call" : "Put") + ", " + (isValuable ? "Exercise" : "Abandon") + ", " + getTime() + "]");
-		Console.OUT.println("# OptionMarket: " + this.name + ", " + getTimeToMaturity() + ", " + getNextMaturityTime() + ", " + isMaturityTime());
+		//Console.OUT.println("# [" + (isCallOption() ? "Call" : "Put") + ", " + (isValuable ? "Exercise" : "Abandon") + ", " + getTime() + "]");
+		//Console.OUT.println("# OptionMarket: " + this.name + ", " + getTimeToMaturity() + ", " + getNextMaturityTime() + ", " + isMaturityTime());
 
 		val T = getTime();
 		while (optionAgentUpdates.size() <= T) { // TODO
@@ -128,7 +147,7 @@ public class OptionMarket extends Market {
 		}
 
 		if (isMaturityTime()) {
-			Console.OUT.println("# MaturityTime " + T);
+			//Console.OUT.println("# MaturityTime " + T);
 			if (false) { // TODO: It should be "true" but now set it to "false" for stability of simulations.
 				this.getBuyOrderBook().removeAllWhere((Order) => true);
 				this.getSellOrderBook().removeAllWhere((Order) => true);

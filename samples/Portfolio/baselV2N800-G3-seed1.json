@@ -1,0 +1,90 @@
+{
+	"debug": 0,
+	"numStepsOneDay": 5,
+	"numDaysOneMonth": 30,
+	"TPORT": 30, "MEMO": "For example,if this TPORT is 120, it means 120 days = 120*numStepsOneDay steps.",
+	"timeWindowSize": 200,
+	"covarfundamentalWeight": 0.5,
+	"simulation": {
+		"markets": ["market-1","market-2","market-3"],
+		"agents": ["agents-1","agents-2"],
+		"sessions": [
+			{	"sessionName": 0,
+				"iterationDays": 6000,   "MEMO": "This iterationSteps (Runner.x10) = iterationDays*numStepsOneDay should satisfy the following condition: iterationSteps >= max{ tport*numStepsOneDay*timeWindowSize, numStepsOneDay*sizeDistVaR }",
+				"withOrderPlacement": false,
+				"withOrderExecution": false,
+				"withPrint": false,
+				"isForDummyTimeseries": true,
+				"maxNormalOrders": 3,
+				"events": ["FundamentalPriceShock"]
+			},
+			{	"sessionName": 1,
+				"iterationDays": 60000,   "MEMO": "This iterationSteps (Runner.x10) = (iterationDays+1)*numStepsOneDay",
+				"withOrderPlacement": true,
+				"withOrderExecution": true,
+				"withPrint": true,
+				"isForDummyTimeseries": false,
+				"maxNormalOrders": 3
+			}
+		]
+	},
+
+	"FundamentalPriceShock": {
+		"class": "FundamentalPriceShock",
+		"target": "market-1",
+		"triggerDays": 6000,    "MEMO": "Days. From the beginning of the session 0",
+		"priceChangeRate": -0.0,    "MEMO": "Sign: negative for down; positive for up; zero for no change",
+		"enabled": true
+	},
+
+	"class-Market": {
+		"class": "Market",
+		"marketPrice": 400.0,
+		"fundamentalVolatility": 0.0005,
+		"outstandingShares": 1000		
+	},
+
+	"market-1": { "extends": "class-Market" }, "market-2": { "extends": "class-Market" }, "market-3": { "extends": "class-Market" },
+
+	"FCNMarkowitzPortfolioAgent": {
+		"class": "FCNMarkowitzPortfolioAgent",						
+		"noiseScale": 0.001,
+		"logType": true,							
+		"assetVolume": 50,					
+		"cashAmount": 45000.0,
+		"fundamentalMeanReversionTime": {"uniform": [50, 150]},
+		"fundamentalWeight": {"expon": [10.0]},		
+		"chartWeight": {"expon": [1.0]},					
+		"noiseWeight":  {"expon": [10.0]},																
+		"b": {"uniform": [0.00095, 0.00105]},			
+		"shortSellingAbility": false,	
+		"tport": 30,	"MEMO": "tportはステップ数ではなく，日数(=ステップ数でのtport/numStepsOneDay)で指定する",
+		"timeWindowSize": [80, 120],  "MEMO": "timeWindowSizeは[t, t+TPORT]間の累積リターン，ボラを取ってくるサンプル数",
+		"leverageRate": 1.0,
+		"accessibleMarkets": ["market-1","market-2","market-3"]								
+	},
+
+	"agents-1": {
+		"extends": "FCNMarkowitzPortfolioAgent",
+		"numAgents": 800	
+	},
+
+	"agents-2": {
+		"class": "FCNBaselMarkowitzPortfolioAgent",
+		"extends": "FCNMarkowitzPortfolioAgent",									
+		"numAgents": 200,					
+		"distanceType": "Manhattan",	"MEMO": "we can use Manhattan or Chebyshev",
+		"riskType": "VaR",	"MEMO": "we can use VaR or ES",								
+		"confInterval": 0.99,
+		"numDaysVaR": 10, "MEMO": "バーゼル2,3どちらも10日の保有期間",
+		"sizeDistVaR": 250, "MEMO": "どちらも250日の観察期間で.バーゼル2は99%のVaR，バーゼル3は97.5%のES",
+		"coMarketRisk": 125.0,	"MEMO": "通常，12.5だが，10倍して12.5*10 =125.0とした．",
+		"threshold": 0.08,	"MEMO": "通常，0.08なので， 0.08*125.0 = 10.0 =< owned capital /risk assetとなり，「市場リスクにより1日で失う可能性のある額の10倍以上自己資本を持て」という式になっている",
+		"isLimitVariable": true,
+		"underLimitPriceRate": 0.5,
+		"overLimitPriceRate": 1.5,
+		"underLimitPrice": 200,
+		"overLimitPrice": 600
+	}
+}
+

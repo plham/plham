@@ -4,6 +4,13 @@ import plham.Market;
 import plham.Order;
 import plham.agent.FCNAgent;
 import plham.event.PriceLimitRule;
+import plham.main.Simulator;
+import plham.util.JSON;
+import plham.Agent;
+import plham.util.JSONRandom;
+import plham.Event;
+import samples.PriceLimit.PriceLimitMain;
+import x10.util.Random;
 
 public class PriceLimitFCNAgent extends FCNAgent {
 
@@ -24,5 +31,24 @@ public class PriceLimitFCNAgent extends FCNAgent {
 			}
 		}
 		return orders;
+	}
+	public static def register(sim:Simulator):void {
+		val className = "PriceLimitFCNAgent";
+		sim.addAgentInitializer(className,
+			(
+				id:Long,
+				name:String, 
+				random:Random,
+				json:JSON.Value
+			) => {
+				return new PriceLimitFCNAgent(id, name, random).setup(json, sim);
+			}
+		);
+	}
+	public def this(id:Long, name:String, random:Random) = super(id, name, random);
+	public def setup(json:JSON.Value, sim:Simulator):PriceLimitFCNAgent {
+		super.setup(json, sim);
+		this.priceLimit = new PriceLimitMain().createEvents(sim.CONFIG(json("priceLimit")))(0) as PriceLimitRule;
+		return this;
 	}
 }
